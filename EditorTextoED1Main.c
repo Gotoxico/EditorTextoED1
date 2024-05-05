@@ -1,38 +1,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-#include <curses.h>
+//#include <curses.h>
 #include "EditorTextoED1.h"
 
 int main(){
-    initscr();
-    cbreak();
-    keypad(stdscr, TRUE);
+    //initscr();
+    //cbreak();
+    //keypad(stdscr, TRUE);
+    int x = 0, y= 0;
+    gotoxy(x,y);
     char caractere;
     while((caractere = getch()) != 27){
         switch(caractere){
-            case KEY_BACKSPACE:
+            case 8:
                 apagarTexto();
                 break;
 
-            case KEY_UP:
-                gotoxy(wherex(), wherey()+1);
+            case 72:
+                gotoxy(x, y+1);
+                y++;
                 break;
 
-            case KEY_DOWN:
-                gotoxy(wherex(), wherey()-1);
+            case 80:
+                gotoxy(x, y-1);
+                y--;
                 break;
 
-            case KEY_LEFT:
-                gotoxy(wherex()-1, wherey());
+            case 75:
+                gotoxy(x-1, y);
+                if(x-1 != -1){
+                    x--;
+                }
                 break;
 
-            case KEY_RIGHT:
-                gotoxy(wherex()+1, wherey());
+            case 77:
+                gotoxy(x+1, y);
+                if(x+1 != 80){
+                    x++;
+                }
                 break;
 
             default:
-                inserirTexto();
+                inserirTexto(caractere);
                 break;
         }
     }

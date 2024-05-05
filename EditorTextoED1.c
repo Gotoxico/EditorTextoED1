@@ -56,10 +56,14 @@ void moverLinhaCima(LINHA *linha){
     free(aux);
 }
 
+void gotoxy(int x, int y){
+    printf("\033[%d;%dH", y, x);
+}
+
 
 //A ideia e basicamente: Toda vez que for inserir ou apagar texto ler tudo do arquivo texto e mostrar no terminal. A inserção e remoção estão no final da página por enquanto
 
-void inserirTexto(){
+void inserirTexto(char c){
     clearScreen();
     FILE *file = fopen("EditorTextoED1Arquivo.txt", "a+");
     char caractere;
@@ -71,7 +75,7 @@ void inserirTexto(){
     iniciarPagina(&pagina);
     primeiraLinha(&linha);
     
-    while(caractere = fgetc(file) != NULL){
+    while((caractere = fgetc(file)) != EOF){
         if(contadorCaracteresLinha == 80){
             contadorCaracteresLinha = 0;
             anterior = linha;
@@ -83,7 +87,7 @@ void inserirTexto(){
     }
 
     if(contadorCaracteresLinha != 0){
-        inserirCaractereLinha(&linha, caractere);
+        inserirCaractereLinha(&linha, c);
         contadorCaracteresLinha++;
     }
 
@@ -91,10 +95,12 @@ void inserirTexto(){
         contadorCaracteresLinha = 0;
         anterior = linha;
         novaLinha(&linha, &anterior);
+        inserirCaractereLinha(&linha, c);
+        contadorCaracteresLinha++;
     }
 
-    putch(caractere);
-    fputc(caractere, file);
+    putch(c);
+    fputc(c, file);
 }
 
 void apagarTexto(){
@@ -109,7 +115,7 @@ void apagarTexto(){
     iniciarPagina(&pagina);
     primeiraLinha(&linha);
     
-    while(caractere = fgetc(file) != NULL){
+    while((caractere = fgetc(file)) != EOF){
         if(contadorCaracteresLinha == 80){
             contadorCaracteresLinha = 0;
             anterior = linha;

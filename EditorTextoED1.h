@@ -23,10 +23,11 @@ void primeiraLinha(LINHA *linha);
 void novaLinha(LINHA *linha, LINHA *cima);
 void inserirCaractereLinha(LINHA *linha, char caractere);
 void removerCaractereLinha(LINHA *linha);
-void inserirTexto();
+void inserirTexto(char c);
 void apagarTexto();
 void clearScreen();
 void moverLinhaCima(LINHA *linha);
+void gotoxy(int x, int y);
 
 #include "EditorTextoED1.c"
 #endif
