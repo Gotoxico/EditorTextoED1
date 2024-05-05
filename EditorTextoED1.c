@@ -1,14 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <conio.h>
+#include <string.h>
 #include "EditorTextoED1.h"
 
 void iniciarPagina(PAGINA *pagina){
-    pagina = (PAGINA*) malloc(sizeof(PAGINA));
     pagina->inicio = NULL;
 }
 
 void primeiraLinha(LINHA *linha){
-    linha = (LINHA*) malloc(sizeof(LINHA));
     linha->inicio = NULL;
     linha->fim = NULL;
     linha->cima = NULL;
@@ -16,7 +16,6 @@ void primeiraLinha(LINHA *linha){
 }
 
 void novaLinha(LINHA *linha, LINHA *cima){
-    linha = (LINHA*) malloc(sizeof(LINHA));
     linha->inicio = NULL;
     linha->fim = NULL;
     linha->cima = cima;
@@ -25,7 +24,7 @@ void novaLinha(LINHA *linha, LINHA *cima){
 
 void inserirCaractereLinha(LINHA *linha, char caractere){
     NO *novoNo = (NO*) malloc(sizeof(NO));
-    strcpy(novoNo->c, caractere);
+    novoNo->c = caractere;
     novoNo->prox = NULL;
 
     if(linha->inicio == NULL){
@@ -47,40 +46,51 @@ void removerCaractereLinha(LINHA *linha){
     free(aux);
 }
 
+void clearScreen(){
+    printf("\033[2J\033[H");  
+}
+
+void moverLinhaCima(LINHA *linha){
+    LINHA *aux = linha;
+    linha = linha->cima;
+    free(aux);
+}
+
+
 //A ideia e basicamente: Toda vez que for inserir ou apagar texto ler tudo do arquivo texto e mostrar no terminal. A inserção e remoção estão no final da página por enquanto
 
 void inserirTexto(){
-    clrscr();
+    clearScreen();
     FILE *file = fopen("EditorTextoED1Arquivo.txt", "a+");
     char caractere;
-    int tamanhoArquivo, contadorCaracteresLinha;
-    PAGINA *pagina;
-    LINHA *linha, *anterior;
+    int contadorCaracteresLinha;
+    PAGINA pagina;
+    LINHA linha, anterior;
 
     fseek(file, 0, SEEK_SET);
-    iniciarPagina(pagina);
-    primeiraLinha(linha);
+    iniciarPagina(&pagina);
+    primeiraLinha(&linha);
     
     while(caractere = fgetc(file) != NULL){
         if(contadorCaracteresLinha == 80){
             contadorCaracteresLinha = 0;
             anterior = linha;
-            novaLinha(linha, anterior);
+            novaLinha(&linha, &anterior);
         }
-        inserirCaractereLinha(linha, caractere);
+        inserirCaractereLinha(&linha, caractere);
         putch(caractere);
         contadorCaracteresLinha++;
     }
 
     if(contadorCaracteresLinha != 0){
-        inserirCaractereLinha(linha, caractere);
+        inserirCaractereLinha(&linha, caractere);
         contadorCaracteresLinha++;
     }
 
     if(contadorCaracteresLinha == 80){
         contadorCaracteresLinha = 0;
         anterior = linha;
-        novaLinha(linha, anterior);
+        novaLinha(&linha, &anterior);
     }
 
     putch(caractere);
@@ -88,39 +98,37 @@ void inserirTexto(){
 }
 
 void apagarTexto(){
-    clrscr();
+    clearScreen();
     FILE *file = fopen("EditorTextoED1Arquivo.txt", "a+");
     char caractere;
-    int tamanhoArquivo, contadorCaracteresLinha;
-    PAGINA *pagina;
-    LINHA *linha, *anterior;
+    int contadorCaracteresLinha;
+    PAGINA pagina;
+    LINHA linha, anterior;
 
     fseek(file, 0, SEEK_SET);
-    iniciarPagina(pagina);
-    primeiraLinha(linha);
+    iniciarPagina(&pagina);
+    primeiraLinha(&linha);
     
     while(caractere = fgetc(file) != NULL){
         if(contadorCaracteresLinha == 80){
             contadorCaracteresLinha = 0;
             anterior = linha;
-            novaLinha(linha, anterior);
+            novaLinha(&linha, &anterior);
         }
-        inserirCaractereLinha(linha, caractere);
+        inserirCaractereLinha(&linha, caractere);
         putch(caractere);
         contadorCaracteresLinha++;
     }
 
     if(contadorCaracteresLinha != 0){
-        removerCaractereLinha(linha);
+        removerCaractereLinha(&linha);
         contadorCaracteresLinha--;
     }
 
     if(contadorCaracteresLinha == 0){
-        LINHA *aux = linha;
-        linha = linha->cima;
-        free(aux);
+        moverLinhaCima(&linha);
     }
 
     fseek(file, -1, SEEK_END);
-    fputc(" ", file);
+    fputc(32, file);
 }

@@ -1,29 +1,34 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <conio.h>
+#include <curses.h>
 #include "EditorTextoED1.h"
 
 int main(){
+    initscr();
+    cbreak();
+    keypad(stdscr, TRUE);
     char caractere;
-    while(caractere = getch() != 27){
+    while((caractere = getch()) != 27){
         switch(caractere){
-            case 8:
+            case KEY_BACKSPACE:
                 apagarTexto();
                 break;
 
-            case 170 || 234:
+            case KEY_UP:
                 gotoxy(wherex(), wherey()+1);
                 break;
 
-            case 171 || 235:
+            case KEY_DOWN:
                 gotoxy(wherex(), wherey()-1);
                 break;
 
-            case 148 || 212:
+            case KEY_LEFT:
                 gotoxy(wherex()-1, wherey());
                 break;
 
-            case 151 || 215:
-                gotoxy(wherex+1, wherey());
+            case KEY_RIGHT:
+                gotoxy(wherex()+1, wherey());
                 break;
 
             default:
@@ -31,4 +36,5 @@ int main(){
                 break;
         }
     }
+    return 0;
 }

@@ -3,15 +3,15 @@
 
 typedef struct no{
     char c;
-    NO *ant;
-    NO *prox;
+    struct no *ant;
+    struct no *prox;
 }NO;
 
 typedef struct linha{
     NO *inicio;
     NO *fim;
-    LINHA *cima;
-    LINHA *baixo;
+    struct linha *cima;
+    struct linha *baixo;
 }LINHA;
 
 typedef struct pagina{
@@ -25,7 +25,8 @@ void inserirCaractereLinha(LINHA *linha, char caractere);
 void removerCaractereLinha(LINHA *linha);
 void inserirTexto();
 void apagarTexto();
-
+void clearScreen();
+void moverLinhaCima(LINHA *linha);
 
 #include "EditorTextoED1.c"
 #endif
