@@ -25,6 +25,7 @@ void inserirCaractereLinha(LINHA *linha, char caractere);
 void removerCaractereLinha(LINHA *linha);
 void inserirTexto(char c);
 void apagarTexto();
+void pularLinha();
 void clearScreen();
 void moverLinhaCima(LINHA *linha);
 void gotoxy(int x, int y);

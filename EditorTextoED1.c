@@ -60,11 +60,14 @@ void gotoxy(int x, int y){
     printf("\033[%d;%dH", y, x);
 }
 
+void pularLinha(LINHA linha){
+    LINHA nova = (LINHA*)
+}
 
 //A ideia e basicamente: Toda vez que for inserir ou apagar texto ler tudo do arquivo texto e mostrar no terminal. A inserção e remoção estão no final da página por enquanto
 
 void inserirTexto(char c){
-    clearScreen();
+    //clearScreen();
     FILE *file = fopen("EditorTextoED1Arquivo.txt", "a+");
     char caractere;
     int contadorCaracteresLinha;
@@ -104,7 +107,7 @@ void inserirTexto(char c){
 }
 
 void apagarTexto(){
-    clearScreen();
+    //clearScreen();
     FILE *file = fopen("EditorTextoED1Arquivo.txt", "a+");
     char caractere;
     int contadorCaracteresLinha;

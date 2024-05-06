@@ -7,12 +7,16 @@
 int main(){
     //initscr();
     //cbreak();
-    //keypad(stdscr, TRUE);
+    //keypad(stdscr, TRUE);e
+    clearScreen();
     int x = 0, y= 0;
     gotoxy(x,y);
     char caractere;
     while((caractere = getch()) != 27){
         switch(caractere){
+            case 13:
+                pularLinha();
+                break;
             case 8:
                 apagarTexto();
                 break;
@@ -44,6 +48,9 @@ int main(){
             default:
                 inserirTexto(caractere);
                 break;
+        }
+        if(x == 80){
+            x = 0;
         }
     }
     return 0;
