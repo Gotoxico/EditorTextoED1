@@ -24,12 +24,13 @@ void novaLinha(LINHA *linha, LINHA *cima);
 void inserirCaractereLinha(LINHA *linha, char caractere);
 void removerCaractereLinha(LINHA *linha);
 void inserirTexto(char nomeArquivo[], char c);
-void apagarTexto(char nomeArquivo[]);
-void pularLinha();
+//void apagarTexto(char nomeArquivo[]);
+//void pularLinha();
 void clearScreen();
 void moverLinhaCima(LINHA *linha);
 void gotoxy(int x, int y);
 void imprimirLista(LINHA * cima);
+int getLarguraTerminal();
 
 #include "EditorTextoED1.c"
 #endif

@@ -5,7 +5,6 @@
 #include "EditorTextoED1.h"
 #include <windows.h>
 
-
 void iniciarPagina( PAGINA *pagina){
     pagina->inicio = NULL;
 }
@@ -117,7 +116,7 @@ void inserirTexto(char nomeArquivo[], char c){
 
 
 //Função para apagar o texto do arquivo
-void apagarTexto(char nomeArquivo[]){
+/*void apagarTexto(char nomeArquivo[]){
     //clearScreen();
     FILE *file = fopen(nomeArquivo, "a+");
     char caractere;
@@ -151,7 +150,7 @@ void apagarTexto(char nomeArquivo[]){
 
     fseek(file, -1, SEEK_END);
     fputc(32, file);
-}
+}*/
 
 //Função para imprimir a lista de caracteres, para testes
 void imprimirLista(LINHA *linha){
@@ -165,6 +164,13 @@ void imprimirLista(LINHA *linha){
         linha = linha->baixo;
         imprimirLista(linha);
     }
+}
+
+//Função para conseguir largura terminal com a biblioteca windows
+int getLarguraTerminal(){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    return csbi.dwSize.X;
 }
 
 // Menu de opções do editor

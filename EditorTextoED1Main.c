@@ -4,7 +4,7 @@
 //#include <curses.h>
 #include "EditorTextoED1.h"
 #include <locale.h>
-
+#include <math.h>
 
 int main(){
     setlocale(LC_ALL, "Portuguese");
@@ -23,6 +23,12 @@ int main(){
     char caractere, auxiliar;
     int fim;
     char nomeArquivo[100];
+
+    char colunaString[47];
+    int coluna, i;
+
+    int larguraTerminal = getLarguraTerminal();
+    int posicaoAtualColuna = 1;
 
     //Caso o usuário escolha a opção de abrir um arquivo, ele deve digitar o nome do arquivo que deseja abrir, caso contrário, ele deve digitar o nome do arquivo que deseja criar. Para cada opção, o nome do arquivo é armazenado na variável nomeArquivo.
     switch(opcao){
@@ -50,9 +56,26 @@ int main(){
         switch(caractere){
             case 13:
                 //pularLinha();
+                printf("\033[1E");
                 break;
             case 8:
-                apagarTexto(nomeArquivo);
+                //Apagar caractere terminal
+                //Caso esteja no começo de uma linha, pular para o final da linha acima
+
+                if(posicaoAtualColuna == 1){
+                    printf("\b");
+                    printf(" ");
+                    printf("\033[1F");
+                    printf("\033[%dC", larguraTerminal);
+                    posicaoAtualColuna = larguraTerminal;
+                    break;
+                }
+
+                //Apagar normal
+                printf("\b");
+                printf(" ");
+                printf("\033[1D");
+                posicaoAtualColuna--;
                 break;
 
             case -32:
@@ -69,10 +92,28 @@ int main(){
                     case 75:
                         // moverCaractereEsquerda(linhaAtual);
                         printf("\033[1D");
+                        if(posicaoAtualColuna == 1){
+                            printf("\033[1F");
+                            printf("\033[%dC", larguraTerminal);
+                            posicaoAtualColuna = larguraTerminal;
+
+                        }
+                        else{
+                            posicaoAtualColuna--;
+                        }
+                        
                         break;
                     case 77:
                         // moverCaractereDireita(linhaAtual);
                         printf("\033[1C");
+                        if(posicaoAtualColuna == larguraTerminal){
+                            printf("\033[1E");
+                            posicaoAtualColuna = 1;
+                        }
+                        else{
+                            posicaoAtualColuna++;
+                        }
+
                         break;
 
                     default:
@@ -95,6 +136,12 @@ int main(){
 
             default:
                 inserirTexto(nomeArquivo, caractere);
+                if(posicaoAtualColuna == larguraTerminal){
+                    posicaoAtualColuna = 1;
+                }
+                else{
+                    posicaoAtualColuna++;
+                }
                 setbuf(stdin, NULL);
                 break;
         }
