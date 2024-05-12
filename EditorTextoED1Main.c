@@ -8,9 +8,6 @@
 
 int main(){
     setlocale(LC_ALL, "Portuguese");
-    //initscr();
-    //cbreak();
-    //keypad(stdscr, TRUE);e
     PAGINA * pagina = inicializar();
     LINHA  * linhaAtual = inicializarLinha();
     LINHA * aux;
@@ -20,13 +17,11 @@ int main(){
     //Chama o menu de opções do editor para o usuário escolher o que deseja fazer, se deseja abrir um arquivo ou criar um novo.
     int opcao = Menu();
     
-    //gotoxy(x,y);
     char caractere, auxiliar;
     int fim;
     char nomeArquivo[100];
 
-    char colunaString[47];
-    int coluna, i, contadorPosicao = 1;
+    int i;
     int larguraTerminal = getLarguraTerminal();
     int posicaoAtualColuna = 1;
     int posicaoAtualLinha = 1;
@@ -61,7 +56,6 @@ int main(){
             case 9:
                 //Tabulação
                 for(i = 0; i < 4; i++){
-                   // inserirTexto(nomeArquivo, ' ');
                     inserirCaractereLinha(linhaAtual, ' ' );
                     printf(" ");
                     if(posicaoAtualColuna == larguraTerminal){
@@ -75,8 +69,6 @@ int main(){
                 }
                 break;
             case 13:
-                //pularLinha();
-                //inserirTexto(nomeArquivo, '\n');
                 aux = inicializarLinha();
                 novaLinha(aux, linhaAtual);
                 linhaAtual = aux;
@@ -93,8 +85,8 @@ int main(){
                     printf("\b");
                     printf(" ");
                     printf("\033[1F");
-                    printf("\033[%dC", larguraTerminal);
-                    posicaoAtualColuna = larguraTerminal;
+                    printf("\033[%dC", larguraTerminal+1);
+                    posicaoAtualColuna = larguraTerminal+1;
                     break;
                 }
                 apagar(pagina, posicaoAtualColuna, posicaoAtualLinha);
@@ -137,7 +129,7 @@ int main(){
                     case 77:
                         // moverCaractereDireita(linhaAtual);
                         printf("\033[1C");
-                        if(posicaoAtualColuna == larguraTerminal){
+                        if(posicaoAtualColuna == larguraTerminal+1){
                             printf("\033[1E");
                             posicaoAtualColuna = 1;
                             posicaoAtualLinha++;

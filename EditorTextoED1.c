@@ -94,8 +94,8 @@ void inserirTexto(char nomeArquivo[], char c){
     //clearScreen();
     //inserirCaractereLinha(linha , c);
     FILE *file = fopen(nomeArquivo, "a+");
-    char caractere;
-    int contadorCaracteresLinha;
+    //char caractere;
+    //int contadorCaracteresLinha;
    // PAGINA pagina;
     //LINHA linha, anterior;
 
@@ -184,29 +184,8 @@ void imprimirLista(LINHA *linha){
     }
 }
 
-//Função para conseguir largura terminal com a biblioteca windows
-int getLarguraTerminal(){
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    return csbi.dwSize.X;
-}
-
-// Menu de opções do editor
-int Menu(){
-    int opcao;
-    printf("\tBem vindo ao Editor de Texto\n");
-    printf("1- Novo arquivo\n");
-    printf("2- Abrir e Editar arquivo existente\n");
-    printf("3- Sair\n");
-    printf("Digite a opção desejada: ");
-
-    scanf("%d", &opcao);
-
-    return opcao;
-}
-
 // Função para apagar o último caractere de um arquivo
-void apagarUltimoCaractere(char nomeArquivo[]) {
+/*void apagarUltimoCaractere(char nomeArquivo[]) {
     FILE *arquivo = fopen(nomeArquivo, "r+");
     if (arquivo == NULL) {
         printf("Não foi possível abrir o arquivo.\n");
@@ -215,13 +194,8 @@ void apagarUltimoCaractere(char nomeArquivo[]) {
 
     fseek(arquivo, -1, SEEK_END); // Move o ponteiro para o penúltimo caractere
     long posicao = ftell(arquivo); // Obtém a posição do penúltimo caractere
-
-    int resultado = ftruncate(fileno(arquivo), posicao); // Trunca o arquivo na posição do penúltimo caractere
-
-   
-
     fclose(arquivo);
-}
+}*/
 
 //Função para salvar o arquivo
 void salvarArquivo(char nomeArquivo[], PAGINA *pagina){
@@ -303,4 +277,25 @@ void abrirArquivo(char nomeArquivo[], PAGINA *pagina){
     fclose(arquivo);
 
     imprimirLista(pagina->inicio);
+}
+
+//Função para conseguir largura terminal com a biblioteca windows
+int getLarguraTerminal(){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    return csbi.dwSize.X;
+}
+
+// Menu de opções do editor
+int Menu(){
+    int opcao;
+    printf("\tBem vindo ao Editor de Texto\n");
+    printf("1- Novo arquivo\n");
+    printf("2- Abrir e Editar arquivo existente\n");
+    printf("3- Sair\n");
+    printf("Digite a opção desejada: ");
+
+    scanf("%d", &opcao);
+
+    return opcao;
 }
