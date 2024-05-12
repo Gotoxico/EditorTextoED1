@@ -20,17 +20,6 @@ LINHA * inicializarLinha(){
     return linha;
 }
 
-void iniciarPagina( PAGINA *pagina){
-    pagina->inicio = NULL;
-}
-
-void primeiraLinha(LINHA *linha){
-    linha->inicio = NULL;
-    linha->fim = NULL;
-    linha->cima = NULL;
-    linha->baixo = NULL;
-}
-
 void novaLinha(LINHA *linha , LINHA *cima){
     linha->inicio = NULL;
     linha->fim = NULL;
@@ -83,92 +72,14 @@ void gotoxy(int x, int y){
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-// void pularLinha(LINHA linha){
-    
-// }
-
-//A ideia e basicamente: Toda vez que for inserir ou apagar texto ler tudo do arquivo texto e mostrar no terminal. A inserção e remoção estão no final da página por enquanto
-
 //Algumas partes foram comentadas para testar a inserção de texto no arquivo
 void inserirTexto(char nomeArquivo[], char c){
-    //clearScreen();
-    //inserirCaractereLinha(linha , c);
     FILE *file = fopen(nomeArquivo, "a+");
-    //char caractere;
-    //int contadorCaracteresLinha;
-   // PAGINA pagina;
-    //LINHA linha, anterior;
-
     fseek(file, 0, SEEK_SET);
-    //iniciarPagina(&pagina);
-    //primeiraLinha(&linha);
-    
-    // while((caractere = fgetc(file)) != EOF){
-    //     if(contadorCaracteresLinha == 80){
-    //         contadorCaracteresLinha = 0;
-    //         anterior = linha;
-    //         novaLinha(&linha, &anterior);
-    //     }
-    //     inserirCaractereLinha(&linha, caractere);
-    //     putch(caractere);
-    //     contadorCaracteresLinha++;
-    // }
-
-    // if(contadorCaracteresLinha != 0){
-    //     inserirCaractereLinha(&linha, c);
-    //     contadorCaracteresLinha++;
-    // }
-
-    // if(contadorCaracteresLinha == 80){
-    //     contadorCaracteresLinha = 0;
-    //     anterior = linha;
-    //     novaLinha(&linha, &anterior);
-    //     inserirCaractereLinha(&linha, c);
-    //     contadorCaracteresLinha++;
-    // }
-
     putch(c);
     fputc(c, file);
     fclose(file);
 }
-
-
-//Função para apagar o texto do arquivo
-/*void apagarTexto(char nomeArquivo[]){
-    //clearScreen();
-    FILE *file = fopen(nomeArquivo, "a+");
-    char caractere;
-    int contadorCaracteresLinha;
-    PAGINA pagina;
-    LINHA linha, anterior;
-
-    fseek(file, 0, SEEK_SET);
-    iniciarPagina(&pagina);
-    primeiraLinha(&linha);
-    
-    while((caractere = fgetc(file)) != EOF){
-        if(contadorCaracteresLinha == 80){
-            contadorCaracteresLinha = 0;
-            anterior = linha;
-            novaLinha(&linha, &anterior);
-        }
-        inserirCaractereLinha(&linha, caractere);
-        putch(caractere);
-        contadorCaracteresLinha++;
-    }
-
-    if(contadorCaracteresLinha != 0){
-        removerCaractereLinha(&linha);
-        contadorCaracteresLinha--;
-    }
-
-    if(contadorCaracteresLinha == 0){
-        moverLinhaCima(&linha);
-    }
-
-    fseek(file, -1, SEEK_END);
-    fputc(32, file);
-}*/
 
 //Função para imprimir a lista de caracteres, para testes
 void imprimirLista(LINHA *linha){
@@ -183,19 +94,6 @@ void imprimirLista(LINHA *linha){
         imprimirLista(linha);
     }
 }
-
-// Função para apagar o último caractere de um arquivo
-/*void apagarUltimoCaractere(char nomeArquivo[]) {
-    FILE *arquivo = fopen(nomeArquivo, "r+");
-    if (arquivo == NULL) {
-        printf("Não foi possível abrir o arquivo.\n");
-        return;
-    }
-
-    fseek(arquivo, -1, SEEK_END); // Move o ponteiro para o penúltimo caractere
-    long posicao = ftell(arquivo); // Obtém a posição do penúltimo caractere
-    fclose(arquivo);
-}*/
 
 //Função para salvar o arquivo
 void salvarArquivo(char nomeArquivo[], PAGINA *pagina){
