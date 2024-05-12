@@ -31,6 +31,13 @@ void moverLinhaCima(LINHA *linha);
 void gotoxy(int x, int y);
 void imprimirLista(LINHA * cima);
 int getLarguraTerminal();
+void  apagarUltimoCaractere(char nomeArquivo[]);
+PAGINA * inicializar();
+LINHA * inicializarLinha();
+void salvarArquivo(char nomeArquivo[], PAGINA *pagina);
+void apagar(PAGINA *pagina, int x, int y);
+void abrirArquivo(char nomeArquivo[], PAGINA *pagina);
+
 
 #include "EditorTextoED1.c"
 #endif
