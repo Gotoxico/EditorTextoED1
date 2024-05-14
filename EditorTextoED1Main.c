@@ -25,6 +25,8 @@ int main(){
     int larguraTerminal = getLarguraTerminal();
     int posicaoAtualColuna = 0;
     int posicaoAtualLinha = 0;
+    int posicaoFinalEscrita = 0;
+    int conferidor;
 
     //Caso o usuário escolha a opção de abrir um arquivo, ele deve digitar o nome do arquivo que deseja abrir, caso contrário, ele deve digitar o nome do arquivo que deseja criar. Para cada opção, o nome do arquivo é armazenado na variável nomeArquivo.
     switch(opcao){
@@ -38,7 +40,15 @@ int main(){
             getchar();
             printf("digite o nome do arquivo (nome.txt): ");
             gets(nomeArquivo);
-            abrirArquivo(nomeArquivo, pagina);
+            abrirArquivo(pagina, nomeArquivo, linhaAtual, &posicaoAtualLinha);
+            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+            posicaoAtualColuna = posicaoFinalEscrita;
+            //printf("%d, %d, %d", posicaoAtualColuna, posicaoAtualLinha, posicaoFinalEscrita);
+            printf("\033[1A");
+
+            for(i = 0; i < posicaoFinalEscrita; i++){
+                printf("\033[1C");
+            } 
             break;
         
         default:
@@ -56,7 +66,7 @@ int main(){
             case 9:
                 //Tabulação
                 for(i = 0; i < 4; i++){
-                    inserirCaractereLinha(linhaAtual, ' ' );
+                    inserirCaractereLinha(linhaAtual, ' ', &posicaoFinalEscrita, &posicaoAtualColuna);
                     printf(" ");
                     if(posicaoAtualColuna == larguraTerminal){
                         printf("\033[1E");
@@ -75,18 +85,21 @@ int main(){
                 printf("\033[1E");
                 posicaoAtualColuna = 0;
                 posicaoAtualLinha++;
+                RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+            
                 
                 break;
             case 8:
                 //Apagar caractere terminal
                 //Caso esteja no começo de uma linha, pular para o final da linha acima
-
-                if(posicaoAtualColuna == 0){
+                if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
+                    posicaoAtualLinha--;
+                    RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                     printf("\033[1F");
-                    printf("\033[%dC", larguraTerminal);
-                    printf(" ");
-                    posicaoAtualColuna = larguraTerminal-1;
-                    apagar(pagina, posicaoAtualColuna, posicaoAtualLinha);
+                    printf("\033[%dC", posicaoFinalEscrita);
+                    posicaoAtualColuna = posicaoFinalEscrita;
+                    //posicaoAtualColuna = larguraTerminal-1;
+                    //apagar(pagina, posicaoAtualColuna, posicaoAtualLinha);
                     break;
                 }
                
@@ -94,8 +107,9 @@ int main(){
                 printf("\b");
                 printf(" ");
                 printf("\033[1D");
-                if(posicaoAtualColuna != 0) posicaoAtualColuna--;
                 apagar(pagina, posicaoAtualColuna, posicaoAtualLinha);
+                if(posicaoAtualColuna != 0) posicaoAtualColuna--;
+                posicaoFinalEscrita--;
 
                 break;
 
@@ -104,40 +118,58 @@ int main(){
                 switch(auxiliar){
                     case 72:
                         // moverLinhaCima(linhaAtual);
-                        printf("\033[1A");
-                        if(posicaoAtualLinha!=0) posicaoAtualLinha--;
+                        if(posicaoAtualLinha!=0){
+                            posicaoAtualLinha--;
+                            conferidor = posicaoAtualColuna;
+                            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                            if(conferidor > posicaoFinalEscrita){
+                                printf("\033[1F");
+                                
+                                printf("\033[%dC", posicaoFinalEscrita);
+                            }else{
+                                printf("\033[1F");
+                                printf("\033[%dC", posicaoAtualColuna);
+                            }
+                            linhaAtual = linhaAtual->cima;
+                        } 
+                        
+                        
                         break;
                     case 80:
                         // moverLinhaBaixo(linhaAtual);
-                        printf("\033[1B");
-                        posicaoAtualLinha++;
+                        if(linhaAtual->baixo!= NULL){
+                            printf("\033[1B");
+                            posicaoAtualLinha++;
+                            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                            linhaAtual = linhaAtual->baixo;
+                        }
                         break;
                     case 75:
                         // moverCaractereEsquerda(linhaAtual);
                         printf("\033[1D");
-                        if(posicaoAtualColuna == 0){
+                        if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
+                            posicaoAtualLinha--;
+                            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                             printf("\033[1F");
-                            printf("\033[%dC", larguraTerminal);
-                            posicaoAtualColuna = larguraTerminal-1;
-                            if(posicaoAtualLinha!=0) posicaoAtualLinha--;
+                            printf("\033[%dC", posicaoFinalEscrita);
+                            
+                            posicaoAtualColuna = posicaoFinalEscrita;
+                            // if(posicaoAtualLinha!=0){
+                            //     posicaoAtualLinha--;
+                            //     posicaoAtualColuna = larguraTerminal-1;
+                            // } 
+
                         }
                         else{
                             posicaoAtualColuna--;
                         }
-                        
                         break;
                     case 77:
                         // moverCaractereDireita(linhaAtual);
-                        printf("\033[1C");
-                        if(posicaoAtualColuna == larguraTerminal-1){
-                            printf("\033[1E");
-                            posicaoAtualColuna = 0;
-                            posicaoAtualLinha++;
-                        }
-                        else{
+                        if(posicaoAtualColuna != posicaoFinalEscrita){
+                            printf("\033[1C");
                             posicaoAtualColuna++;
                         }
-
                         break;
 
                     default:
@@ -145,7 +177,7 @@ int main(){
                 }
             break;
             
-            /*case 27:
+            case 27:
                 printf("\nFim da inserção de texto:\n1- Imprimir Lista e Salvar;\n2-Sair\nOpção: ");
                 scanf("%d", &fim);
                 setbuf(stdin, NULL);
@@ -160,10 +192,10 @@ int main(){
                 }
                 
                 break;
-            */
+            
 
-            //CTRL+P = 16 (Salvar e sair)
-            case 16:
+            //CTRL+S = 16 (Salvar e sair)
+            case 19:
                 printf("Fim da inserção de texto:\n");
                 setbuf(stdin, NULL);
                 printf("\n\n");
@@ -173,8 +205,8 @@ int main(){
 
             default:
                 // x++;
-                inserirTexto(nomeArquivo, caractere);
-                inserirCaractereLinha(linhaAtual, caractere);
+                putc(caractere, stdout);
+                inserirCaractereLinha(linhaAtual, caractere, &posicaoFinalEscrita, &posicaoAtualColuna);
                 if(posicaoAtualColuna == larguraTerminal-1){
                     posicaoAtualColuna = 0;
                     posicaoAtualLinha++;

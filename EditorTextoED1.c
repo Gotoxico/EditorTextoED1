@@ -29,20 +29,40 @@ void novaLinha(LINHA *linha , LINHA *cima){
 }
 
 //função para inserir um caractere na linha da página
-void inserirCaractereLinha(LINHA *linha, char caractere){
+void inserirCaractereLinha(LINHA *linha, char caractere, int * posicaoFinalEscrita, int *posicaoAtualColuna){
     NO *novo = (NO*) malloc(sizeof(NO));
     novo->c = caractere;
     novo->prox = NULL;
     novo->ant = NULL;
-
+    NO *aux;
     if(linha->inicio == NULL){
         linha->inicio = novo;
         linha->fim = novo;
     }else{
-        novo->ant = linha->fim;
-        linha->fim->prox = novo;
-        linha->fim = novo;
+        if((*posicaoAtualColuna) == (*posicaoFinalEscrita)){
+    
+            novo->ant = linha->fim;
+            linha->fim->prox = novo;
+            linha->fim = novo;
+        }else if((*posicaoFinalEscrita) > (*posicaoAtualColuna)){
+             aux = linha->inicio;
+            int i = 0;
+            while(aux != NULL && i < (*posicaoAtualColuna)+1){
+                aux = aux->prox;
+                i++;
+            }
+            novo->prox = aux;
+            novo->ant = aux->ant;
+            if (aux->ant != NULL) {
+                aux->ant->prox = novo;
+            } else {
+                linha->inicio = novo;
+            }
+            aux->ant = novo;
+        }
     }
+    (*posicaoFinalEscrita)++;
+    
 }
 
 void removerCaractereLinha(LINHA *linha){
@@ -83,15 +103,16 @@ void inserirTexto(char nomeArquivo[], char c){
 
 //Função para imprimir a lista de caracteres, para testes
 void imprimirLista(LINHA *linha){
-    if(linha != NULL){
-        NO *aux = linha->inicio;
-        while(aux!=NULL){
-            printf("%c", aux->c);
-            aux = aux->prox;
+    LINHA *aux = linha;    
+    NO *aux1;
+    while(aux != NULL){
+        aux1 = aux->inicio;
+        while(aux1!=NULL){
+            printf("%c", aux1->c);
+            aux1 = aux1->prox;
         }
         printf("\n");
-        linha = linha->baixo;
-        imprimirLista(linha);
+        aux = aux->baixo;
     }
 }
 
@@ -111,8 +132,8 @@ void salvarArquivo(char nomeArquivo[], PAGINA *pagina){
             fputc(caractere->c, arquivo);
             caractere = caractere->prox;
         }
-        fputc('\n', arquivo);
         linha = linha->baixo;
+        if(linha != NULL) fputc('\n', arquivo);
     }
     fclose(arquivo);
 }
@@ -122,12 +143,12 @@ void apagar(PAGINA * pagina, int x, int y){
     
     LINHA *linha = pagina->inicio;
     NO *caractere;
-    int contador = 1;
+    int contador = 0;
     while(linha != NULL && contador < y){
         linha = linha->baixo;
         contador++;
     }
-    contador = 1;
+    contador = 0;
     caractere = linha->inicio;
     while(caractere != NULL && contador < x-1){
         caractere = caractere->prox;
@@ -153,23 +174,22 @@ void apagar(PAGINA * pagina, int x, int y){
 
 
 //Função para abrir um arquivo existente e armazenar na página
-void abrirArquivo(char nomeArquivo[], PAGINA *pagina){
+void abrirArquivo(PAGINA * pagina, char nomeArquivo[], LINHA *linha, int *posicaoAtualLinha){
     FILE *arquivo = fopen(nomeArquivo, "r");
     if(arquivo == NULL){
         printf("Erro ao abrir o arquivo");
         return;
     }
-
-    char caractere;
-    LINHA *linha = inicializarLinha();
     pagina->inicio = linha;
+    char caractere;
     while((caractere = fgetc(arquivo)) != EOF){
         if(caractere == '\n'){
             LINHA *aux = inicializarLinha();
             novaLinha(aux, linha);
-            linha = aux;
+            (linha) = aux;
+            (*posicaoAtualLinha)++;
         }else{
-            inserirCaractereLinha(linha, caractere);
+            inserir(linha, caractere);
         }
     }
     fclose(arquivo);
@@ -196,4 +216,43 @@ int Menu(){
     scanf("%d", &opcao);
 
     return opcao;
+}
+
+void RecuperarPosicaoFinal(PAGINA * pagina, int posicaoAtualLinha, int *posicaoFinalEscrita){
+    LINHA * linha = pagina->inicio;
+    int i = 0;
+    *posicaoFinalEscrita = 0;
+    while(linha != NULL && i < posicaoAtualLinha){
+        linha = linha->baixo;
+        i++;
+    }
+    NO *aux = linha->inicio;
+    while(aux != NULL){
+        (*posicaoFinalEscrita)++;
+        aux = aux->prox;
+    }
+}
+
+//Função de inserção simples na struct PAGINA
+void inserir(LINHA *linha, char c){
+    NO *novo = (NO*) malloc(sizeof(NO));
+    novo->c = c;
+    novo->prox = NULL;
+    novo->ant = NULL;
+    NO *aux;
+    if(linha->inicio == NULL){
+        linha->inicio = novo;
+        linha->fim = novo;
+    }else{
+        if(linha->fim == NULL){
+            linha->fim = novo;
+            linha->inicio->prox = linha->fim;
+            linha->fim->ant = linha->inicio;
+        }else{
+            aux = linha->fim;
+            aux->prox = novo;
+            novo->ant = aux;
+            linha->fim = novo;
+        }
+    }
 }

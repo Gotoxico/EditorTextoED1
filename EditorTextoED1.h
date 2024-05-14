@@ -21,17 +21,19 @@ typedef struct pagina{
 PAGINA * inicializar();
 LINHA * inicializarLinha();
 void novaLinha(LINHA *linha, LINHA *cima);
-void inserirCaractereLinha(LINHA *linha, char caractere);
+void inserirCaractereLinha(LINHA *linha, char caractere, int * posicaoFinalEscrita, int *posicaoAtualColuna);
 void removerCaractereLinha(LINHA *linha);
 void clearScreen();
 void moverLinhaCima(LINHA *linha);
 void gotoxy(int x, int y);
 void inserirTexto(char nomeArquivo[], char c);
-void imprimirLista(LINHA * cima);
+void imprimirLista(LINHA * linha);
 void salvarArquivo(char nomeArquivo[], PAGINA *pagina);
 void apagar(PAGINA *pagina, int x, int y);
-void abrirArquivo(char nomeArquivo[], PAGINA *pagina);
+void abrirArquivo(PAGINA * pagina, char nomeArquivo[], LINHA *linha, int *posicaoAtualLinha);
 int getLarguraTerminal();
+void RecuperarPosicaoFinal(PAGINA *pagina, int posicaoAtualLinha, int *posicaoFinalEscrita);
+void inserir(LINHA * linha, char c);
 int Menu();
 
 
