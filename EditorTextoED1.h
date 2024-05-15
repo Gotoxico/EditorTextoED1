@@ -21,7 +21,7 @@ typedef struct pagina{
 PAGINA * inicializar();
 LINHA * inicializarLinha();
 void novaLinha(LINHA *linha, LINHA *cima);
-void inserirCaractereLinha(LINHA *linha, char caractere, int * posicaoFinalEscrita, int *posicaoAtualColuna);
+void inserirCaractereLinha(LINHA *linha, char caractere, int * posicaoFinalEscrita, int posicaoAtualColuna);
 void removerCaractereLinha(LINHA *linha);
 void clearScreen();
 void moverLinhaCima(LINHA *linha);
@@ -30,11 +30,15 @@ void inserirTexto(char nomeArquivo[], char c);
 void imprimirLista(LINHA * linha);
 void salvarArquivo(char nomeArquivo[], PAGINA *pagina);
 void apagar(PAGINA *pagina, int x, int y);
-void abrirArquivo(PAGINA * pagina, char nomeArquivo[], LINHA *linha, int *posicaoAtualLinha);
+void abrirArquivo(PAGINA * pagina, LINHA *linha, char nomeArquivo[], int *posicaoAtualLinha);
 int getLarguraTerminal();
 void RecuperarPosicaoFinal(PAGINA *pagina, int posicaoAtualLinha, int *posicaoFinalEscrita);
 void inserir(LINHA * linha, char c);
 int Menu();
+void moverLinhaBaixo(LINHA *linha);
+LINHA * Apontamento(PAGINA *pagina,  int posicaoAtualLinha);
+void Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita);
+ 
 
 
 #include "EditorTextoED1.c"
