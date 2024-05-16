@@ -296,12 +296,12 @@ void imprimirLinha(LINHA *linha){
 //Função para mover a linha para baixo
 LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita){
     LINHA * linha = pagina->inicio;
-    LINHA * linhaAux = linha->baixo;
     int i = 0, conferidor = 0;
     while(linha != NULL && i < posicaoAtualLinha){
         linha = linha->baixo;
         i++;
     }
+    LINHA * linhaAux = linha->baixo;
     NO * aux = linha->inicio;
     NO * liberar = NULL;
     i = 0;
@@ -360,7 +360,7 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
     }else{
         imprimirLinha(linhaAux);
         linhaAux = linhaAux->baixo;
-        printf("\n");
+        printf("\033[1E");
         imprimirLinha(linhaAux);
         linhaAux = linhaAux->cima;
         return linhaAux;

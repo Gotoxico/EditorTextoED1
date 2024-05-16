@@ -12,15 +12,24 @@ int main(){
         if(c == 27){
             break;
         }
-        printf("%c", c);
-        contador++;
-        if(contador % 10 == 0){
-            for(int i = 0; i < 5; i++){
-                printf("\b");
-                printf(" ");
+        if(c == -32){
+            c = getch();
+            if(c == 72){
+                printf("\033[1A");
+            }else if(c == 80){
+                printf("\033[1B");
+            }else if(c == 77){
+                printf("\033[1C");
+            }else if(c == 75){
                 printf("\033[1D");
-            }   
+            }
+
+        }else if(c == 13){
+            printf("\n");
+        }else{
+            printf("%c", c);
         }
+        
     }
 
     return 0;

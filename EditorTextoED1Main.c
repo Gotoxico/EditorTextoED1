@@ -23,6 +23,8 @@
 #define GOUp printf("\033[1A")
 #define GODown printf("\033[1B")
 #define GOLeft printf("\033[1D")
+#define GOStartDown printf("\033[1E")
+
 
 int main(){
     setlocale(LC_ALL, "Portuguese");
@@ -88,7 +90,7 @@ int main(){
                     inserirCaractereLinha(linhaAtual, ' ', &posicaoFinalEscrita, posicaoAtualColuna);
                     printf(" ");
                     if(posicaoAtualColuna == larguraTerminal){
-                        printf("\033[1E");
+                        GOStartDown;
                         posicaoAtualColuna = 0;
                         posicaoAtualLinha++;
                     }
@@ -98,24 +100,34 @@ int main(){
                 }
                 break;
             case Enter:
-                if(linhaAtual->baixo == NULL){
                     //posicaoAtualLinha++;
                     if(posicaoAtualColuna < posicaoFinalEscrita){
                         linhaAtual = Reapontar(pagina, posicaoAtualLinha, posicaoAtualColuna, &posicaoFinalEscrita);
+                        posicaoAtualLinha++;
                         RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                         posicaoAtualColuna = posicaoFinalEscrita;
-                        posicaoAtualLinha++;
+                        //linhaAtual = linhaAtual->baixo;
                     }else{
-
-                        posicaoAtualColuna = 0;
+                        aux = inicializarLinha();
+                        if(linhaAtual->baixo == NULL){
+                            
+                            novaLinha(aux, linhaAtual);
+                            linhaAtual = aux;
+                            posicaoAtualLinha++;
+                            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                            GOStartDown;
+                            posicaoAtualColuna = 0;
+                        }else{
+                            novaLinha(aux, linhaAtual);
+                            novaLinha(linhaAtual->baixo, aux);
+                            linhaAtual = aux;
+                            posicaoAtualLinha++;
+                            printf("\n");
+                            imprimirLinha(linhaAtual);
+                        }
                     }
-                }
-                else{
-                    printf("\033[1E");
-                    posicaoAtualColuna = 0;
-                    posicaoAtualLinha++;
-                    linhaAtual = linhaAtual->baixo;
-                }
+            
+                
             
                 
                 break;
@@ -123,14 +135,17 @@ int main(){
                 //Apagar caractere terminal
                 //Caso esteja no começo de uma linha, pular para o final da linha acima
                 if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
-                    posicaoAtualLinha--;
-                    RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
-                    printf("\033[1F");
-                    printf("\033[%dC", posicaoFinalEscrita);
-                    posicaoAtualColuna = posicaoFinalEscrita;
-                    //posicaoAtualColuna = larguraTerminal-1;
-                    //apagar(pagina, posicaoAtualColuna, posicaoAtualLinha);
-                    linhaAtual = linhaAtual->cima;
+                    if(linhaAtual->baixo == NULL){
+                        posicaoAtualLinha--;
+                        RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                        printf("\033[1F");
+                        printf("\033[%dC", posicaoFinalEscrita);
+                        posicaoAtualColuna = posicaoFinalEscrita;
+                        aux = linhaAtual;
+                        linhaAtual = linhaAtual->cima;
+                        linhaAtual->baixo = NULL;
+                        free(aux);
+                    }
                     break;
                 }
 
@@ -198,7 +213,8 @@ int main(){
                             linhaAtual = linhaAtual->cima;
                         }
                         else{
-                            posicaoAtualColuna--;
+
+                            if(posicaoAtualColuna != 0)posicaoAtualColuna--;
                         }
                         break;
                     case DIREITA:
@@ -206,6 +222,14 @@ int main(){
                         if(posicaoAtualColuna < posicaoFinalEscrita){
                             GORight;
                             posicaoAtualColuna++;
+                        }else if(posicaoAtualColuna == posicaoFinalEscrita){
+                            if(linhaAtual->baixo != NULL){
+                                linhaAtual = linhaAtual->baixo;
+                                posicaoAtualLinha++;
+                                RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                                posicaoAtualColuna = 0;
+                                GOStartDown;
+                            }
                         }
                         break;
 
