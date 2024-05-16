@@ -52,6 +52,7 @@ int main(){
             getchar();
             printf("digite o nome do arquivo (nome.txt): ");
             gets(nomeArquivo);
+            system("cls");
             break;
 
         case OPEN:
@@ -75,7 +76,7 @@ int main(){
     }
 
     setbuf(stdin, NULL);
-
+    
     //Falta implementar a função de abrir um arquivo existente para edição
     while(1){
         caractere = getch();
@@ -98,15 +99,14 @@ int main(){
                 break;
             case Enter:
                 if(linhaAtual->baixo == NULL){
-                    aux = inicializarLinha();
-                    novaLinha(aux, linhaAtual);
-                    linhaAtual = aux;
-                    posicaoAtualLinha++;
+                    //posicaoAtualLinha++;
                     if(posicaoAtualColuna < posicaoFinalEscrita){
-                        Reapontar(pagina, posicaoAtualLinha, posicaoAtualColuna, &posicaoFinalEscrita);
+                        linhaAtual = Reapontar(pagina, posicaoAtualLinha, posicaoAtualColuna, &posicaoFinalEscrita);
                         RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                         posicaoAtualColuna = posicaoFinalEscrita;
+                        posicaoAtualLinha++;
                     }else{
+
                         posicaoAtualColuna = 0;
                     }
                 }

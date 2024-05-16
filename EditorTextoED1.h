@@ -37,7 +37,7 @@ void inserir(LINHA * linha, char c);
 int Menu();
 void moverLinhaBaixo(LINHA *linha);
 LINHA * Apontamento(PAGINA *pagina,  int posicaoAtualLinha);
-void Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita);
+LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita);
  
 
 

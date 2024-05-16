@@ -5,6 +5,11 @@
 #include "EditorTextoED1.h"
 #include <windows.h>
 
+#define GORight printf("\033[1C")
+#define GOUp printf("\033[1A")
+#define GODown printf("\033[1B")
+#define GOLeft printf("\033[1D")
+
  PAGINA * inicializar(){
     PAGINA *pagina = (PAGINA*) malloc(sizeof(PAGINA));
     pagina->inicio = NULL;
@@ -289,18 +294,52 @@ void imprimirLinha(LINHA *linha){
 }
 
 //Função para mover a linha para baixo
-void Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita){
+LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita){
     LINHA * linha = pagina->inicio;
-    int i = 0;
-    while(linha != NULL && i < posicaoAtualLinha-1){
+    LINHA * linhaAux = linha->baixo;
+    int i = 0, conferidor = 0;
+    while(linha != NULL && i < posicaoAtualLinha){
         linha = linha->baixo;
         i++;
     }
-    NO * aux = linha->fim;
-    i = (*posicaoFinalEscrita);
-    while(aux != NULL && i > posicaoAtualColuna+1){
-        aux = aux->ant;
-        i--;
+    NO * aux = linha->inicio;
+    NO * liberar = NULL;
+    i = 0;
+    while(aux != NULL && i < posicaoAtualColuna){
+        aux = aux->prox;
+        i++;
+    }
+
+    aux->ant->prox = NULL;
+    linha->fim = aux->ant;
+    i = posicaoAtualColuna;
+
+
+    
+    if(linhaAux == NULL){
+        linhaAux = inicializarLinha();
+        novaLinha(linhaAux, linha);
+        while(aux != NULL && i < (*posicaoFinalEscrita)){
+            inserir(linhaAux, aux->c);
+            liberar = aux;
+            aux = aux->prox;
+            i++;
+            free(liberar);
+        }
+        
+        conferidor = 0;
+    }else{
+        LINHA * linha2 = inicializarLinha();
+        novaLinha(linha2, linha);
+        novaLinha(linhaAux, linha2);
+        while(aux != NULL && i < (*posicaoFinalEscrita)){
+            inserir(linha2, aux->c);
+            liberar = aux;
+            aux = aux->prox;
+            i++;
+            free(liberar);
+        }
+        conferidor = 1;
     }
     int contador = (*posicaoFinalEscrita) - posicaoAtualColuna;
     (*posicaoFinalEscrita) = posicaoAtualColuna;
@@ -313,10 +352,17 @@ void Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, i
     printf("\b");
     printf("\033[1E");
 
-    aux->ant->prox = NULL;
-    aux->ant = linha->fim;
-    aux->ant = NULL;
-    linha->baixo->inicio = aux;
-    linha = linha->baixo;
-    imprimirLinha(linha);
+   
+    if(conferidor == 0){
+
+        imprimirLinha(linhaAux);
+        return linhaAux;
+    }else{
+        imprimirLinha(linhaAux);
+        linhaAux = linhaAux->baixo;
+        printf("\n");
+        imprimirLinha(linhaAux);
+        linhaAux = linhaAux->cima;
+        return linhaAux;
+    }
 }
