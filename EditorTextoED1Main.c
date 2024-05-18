@@ -24,6 +24,9 @@
 #define GODown printf("\033[1B")
 #define GOLeft printf("\033[1D")
 #define GOStartDown printf("\033[1E")
+#define Deslocamento printf("\033[1L")
+#define DeleteLine printf("\033[1M")
+#define GOUpStart printf("\033[1F")
 
 
 int main(){
@@ -109,8 +112,7 @@ int main(){
                         //linhaAtual = linhaAtual->baixo;
                     }else{
                         aux = inicializarLinha();
-                        if(linhaAtual->baixo == NULL){
-                            
+                        if(linhaAtual->baixo == NULL){  
                             novaLinha(aux, linhaAtual);
                             linhaAtual = aux;
                             posicaoAtualLinha++;
@@ -118,34 +120,47 @@ int main(){
                             GOStartDown;
                             posicaoAtualColuna = 0;
                         }else{
+                            GODown;
+                            Deslocamento;
                             novaLinha(aux, linhaAtual);
                             novaLinha(linhaAtual->baixo, aux);
                             linhaAtual = aux;
                             posicaoAtualLinha++;
-                            printf("\n");
+                            RecuperarPosicaoFinal( pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                             imprimirLinha(linhaAtual);
                         }
                     }
-            
-                
-            
                 
                 break;
             case Backspace:
                 //Apagar caractere terminal
                 //Caso esteja no começo de uma linha, pular para o final da linha acima
                 if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
-                    if(linhaAtual->baixo == NULL){
-                        posicaoAtualLinha--;
-                        RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
-                        printf("\033[1F");
-                        printf("\033[%dC", posicaoFinalEscrita);
-                        posicaoAtualColuna = posicaoFinalEscrita;
-                        aux = linhaAtual;
-                        linhaAtual = linhaAtual->cima;
-                        linhaAtual->baixo = NULL;
-                        free(aux);
-                    }
+                        if(linhaAtual->inicio == NULL){
+
+                            posicaoAtualLinha--;
+                            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                            GOUpStart;
+                            printf("\033[%dC", posicaoFinalEscrita);
+                            posicaoAtualColuna = posicaoFinalEscrita;
+                            aux = linhaAtual;
+                            linhaAtual = linhaAtual->cima;
+                            linhaAtual->baixo = NULL;
+                            free(aux);
+                        }else{
+                            linhaAtual = linhaAtual->cima;
+                            posicaoAtualLinha--;
+                            DeleteLine;
+                            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                            GOUpStart;
+                            posicaoAtualColuna = posicaoFinalEscrita;
+                            printf("\033[%dC", posicaoFinalEscrita);
+                            DeslocarLinha(linhaAtual);
+                            RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                            posicaoAtualColuna = posicaoFinalEscrita;
+
+                        }
+                    
                     break;
                 }
 
@@ -170,11 +185,11 @@ int main(){
                             conferidor = posicaoAtualColuna;
                             RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                             if(conferidor > posicaoFinalEscrita){
-                                printf("\033[1F");
+                                GOUpStart;
                                 printf("\033[%dC", posicaoFinalEscrita);
                                 posicaoAtualColuna = posicaoFinalEscrita;
                             }else{
-                                printf("\033[1F");
+                                GOUpStart;
                                 printf("\033[%dC", posicaoAtualColuna);
                             }
                             linhaAtual = linhaAtual->cima;
@@ -206,7 +221,7 @@ int main(){
                         if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
                             posicaoAtualLinha--;
                             RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
-                            printf("\033[1F");
+                            GOUpStart;
                             printf("\033[%dC", posicaoFinalEscrita);
                             
                             posicaoAtualColuna = posicaoFinalEscrita;
@@ -226,9 +241,9 @@ int main(){
                             if(linhaAtual->baixo != NULL){
                                 linhaAtual = linhaAtual->baixo;
                                 posicaoAtualLinha++;
-                                RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                                 posicaoAtualColuna = 0;
                                 GOStartDown;
+                                RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                             }
                         }
                         break;

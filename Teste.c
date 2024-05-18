@@ -23,16 +23,21 @@ int main(){
             }else if(c == 75){
                 printf("\033[1D");
             }
+        }else{
 
-        }else if(c == 13){
+        if(c == 8){
+            printf("\033[1M");
+        }
+        else if(c == 13){
             printf("\n");
         }else{
             printf("%c", c);
         }
-        
     }
 
+        
+
+}
     return 0;
 }
-    
  

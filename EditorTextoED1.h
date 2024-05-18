@@ -38,7 +38,7 @@ int Menu();
 void moverLinhaBaixo(LINHA *linha);
 LINHA * Apontamento(PAGINA *pagina,  int posicaoAtualLinha);
 LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita);
- 
+ void DeslocarLinha(LINHA * linha);
 
 
 #include "EditorTextoED1.c"

@@ -9,6 +9,8 @@
 #define GOUp printf("\033[1A")
 #define GODown printf("\033[1B")
 #define GOLeft printf("\033[1D")
+#define Deslocamento printf("\033[1L")
+#define DeleteLine printf("\033[1M")
 
  PAGINA * inicializar(){
     PAGINA *pagina = (PAGINA*) malloc(sizeof(PAGINA));
@@ -255,16 +257,9 @@ void inserir(LINHA *linha, char c){
         linha->inicio = novo;
         linha->fim = novo;
     }else{
-        if(linha->fim == NULL){
-            linha->fim = novo;
-            linha->inicio->prox = linha->fim;
-            linha->fim->ant = linha->inicio;
-        }else{
-            aux = linha->fim;
-            aux->prox = novo;
-            novo->ant = aux;
-            linha->fim = novo;
-        }
+        novo->ant = linha->fim;
+        linha->fim->prox = novo;
+        linha->fim = novo;
     }
 }
 
@@ -309,7 +304,7 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
         aux = aux->prox;
         i++;
     }
-
+    LINHA * linha2 = inicializarLinha();
     aux->ant->prox = NULL;
     linha->fim = aux->ant;
     i = posicaoAtualColuna;
@@ -329,7 +324,6 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
         
         conferidor = 0;
     }else{
-        LINHA * linha2 = inicializarLinha();
         novaLinha(linha2, linha);
         novaLinha(linhaAux, linha2);
         while(aux != NULL && i < (*posicaoFinalEscrita)){
@@ -358,11 +352,32 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
         imprimirLinha(linhaAux);
         return linhaAux;
     }else{
-        imprimirLinha(linhaAux);
-        linhaAux = linhaAux->baixo;
-        printf("\033[1E");
-        imprimirLinha(linhaAux);
-        linhaAux = linhaAux->cima;
-        return linhaAux;
+        Deslocamento;
+        imprimirLinha(linha2);
+        return linha2;
     }
+}
+
+void DeslocarLinha(LINHA * linha){
+    LINHA * auxLinha = linha->baixo;
+
+    linha->baixo = auxLinha->baixo;
+    auxLinha->baixo->cima = linha;
+    
+
+    NO * aux = auxLinha->inicio;
+    while(aux != NULL){
+        printf("%c", aux->c);
+        inserir(linha, aux->c);
+        aux = aux->prox;
+    }
+    aux = auxLinha->inicio;
+    NO * liberar = NULL;
+    while(aux != NULL){
+        liberar = aux;
+        aux = aux->prox;
+        free(liberar);
+    }
+    free(auxLinha);
+
 }
