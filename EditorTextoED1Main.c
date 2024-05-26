@@ -11,7 +11,7 @@
 #define Tab 9
 #define ESC 27
 #define CTRL_S 19
-#define SETAS -32
+#define SETAS 224
 #define CIMA 72
 #define BAIXO 80
 #define ESQUERDA 75
@@ -30,17 +30,19 @@
 
 
 int main(){
-    setlocale(LC_ALL, "Portuguese");
+    //setlocale(LC_ALL, "Portuguese");
     PAGINA * pagina = inicializar();
     LINHA  * linhaAtual = inicializarLinha();
     LINHA * aux;
     pagina->inicio = linhaAtual;
     clearScreen();
+    BYTES * byte = inicializarBytes();  
+    // linhaAtual->inicio = byte;
 
     //Chama o menu de opções do editor para o usuário escolher o que deseja fazer, se deseja abrir um arquivo ou criar um novo.
     int opcao = Menu();
     
-    char caractere, auxiliar;
+    unsigned char caractere, auxiliar;
     int fim;
     char nomeArquivo[100];
 
@@ -64,7 +66,7 @@ int main(){
             getchar();
             printf("digite o nome do arquivo (nome.txt): ");
             gets(nomeArquivo);
-            abrirArquivo(pagina, linhaAtual, nomeArquivo, &posicaoAtualLinha);
+            abrirArquivo(linhaAtual, nomeArquivo, &posicaoAtualLinha);
             RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
             posicaoAtualColuna = posicaoFinalEscrita;
             GOUp;
@@ -90,7 +92,9 @@ int main(){
             case Tab:
                 //Tabulação
                 for(i = 0; i < 4; i++){
-                    inserirCaractereLinha(linhaAtual, ' ', &posicaoFinalEscrita, posicaoAtualColuna);
+                    inserirBytes(byte, ' ');
+                    inserirCaractereLinha(linhaAtual, byte, &posicaoFinalEscrita, posicaoAtualColuna);
+                    byte = byte->prox;
                     printf(" ");
                     if(posicaoAtualColuna == larguraTerminal){
                         GOStartDown;
@@ -107,6 +111,7 @@ int main(){
                     if(posicaoAtualColuna < posicaoFinalEscrita){
                         linhaAtual = Reapontar(pagina, posicaoAtualLinha, posicaoAtualColuna, &posicaoFinalEscrita);
                         posicaoAtualLinha++;
+                        
                         RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                         posicaoAtualColuna = posicaoFinalEscrita;
                         //linhaAtual = linhaAtual->baixo;
@@ -253,7 +258,9 @@ int main(){
                 }
                 break;            
             case Espace:
-                inserirCaractereLinha(linhaAtual, ' ', &posicaoFinalEscrita, posicaoAtualColuna);
+                inserirBytes(byte, ' ');
+                inserirCaractereLinha(linhaAtual, byte, &posicaoFinalEscrita, posicaoAtualColuna);
+                byte = inicializarBytes();
                 printf(" ");
                 if(posicaoAtualColuna == larguraTerminal){
                     posicaoAtualColuna = 0;
@@ -298,8 +305,40 @@ int main(){
 
             default:
                 // x++;
-                putc(caractere, stdout);
-                inserirCaractereLinha(linhaAtual, caractere, &posicaoFinalEscrita, posicaoAtualColuna);
+              
+            if(caractere <= 127){
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+                
+            }else if(caractere >= 192 && caractere <= 223){
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+                caractere = getch();
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+            }else if(caractere >= 224 && caractere <= 239){
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+                caractere = getch();
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+                caractere = getch();
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+            }else if(caractere >= 240 && caractere <= 247){
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+                caractere = getch();
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+                caractere = getch();
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+                caractere = getch();
+                printf("%c", caractere);
+                inserirBytes(byte, caractere);
+            }
+               inserirCaractereLinha(linhaAtual, byte, &posicaoFinalEscrita, posicaoAtualColuna);
                 if(posicaoAtualColuna == larguraTerminal-1){
                     posicaoAtualColuna = 0;
                     posicaoAtualLinha++;
@@ -312,6 +351,7 @@ int main(){
                     posicaoAtualColuna++;
                 }
                 setbuf(stdin, NULL);
+                byte = inicializarBytes();
                 break;
         }
       

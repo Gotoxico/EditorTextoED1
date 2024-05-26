@@ -27,6 +27,19 @@ LINHA * inicializarLinha(){
     return linha;
 }
 
+BYTES * recuperarInicio(LINHA *linha){
+    BYTES *aux = linha->inicio;
+    return aux;
+}
+
+BYTES * inicializarBytes(){
+    BYTES *byte = (BYTES*) malloc(sizeof(BYTES));
+    byte->inicio = NULL;
+    byte->prox = NULL;
+    byte->ant = NULL;
+    byte->fim = NULL;
+    return byte;
+}
 void novaLinha(LINHA *linha , LINHA *cima){
     linha->inicio = NULL;
     linha->fim = NULL;
@@ -34,23 +47,38 @@ void novaLinha(LINHA *linha , LINHA *cima){
     linha->baixo = NULL;
     cima->baixo = linha;
 }
-
-//Função para inserir um caractere na linha da página
-void inserirCaractereLinha(LINHA *linha, char caractere, int * posicaoFinalEscrita, int posicaoAtualColuna){
+//Função para inserir byte
+void inserirBytes(BYTES *bytes,unsigned char caractere){
     NO *novo = (NO*) malloc(sizeof(NO));
     novo->c = caractere;
     novo->prox = NULL;
     novo->ant = NULL;
-    NO *aux;
+
+    if(bytes->inicio == NULL){
+        bytes->inicio = novo;
+        bytes->fim = novo;
+    }else{
+        novo->ant = bytes->fim;
+        bytes->fim->prox = novo;
+        bytes->fim = novo;
+    }
+}
+
+//Função para inserir um caractere na linha da página
+void inserirCaractereLinha(LINHA *linha, BYTES * byte, int * posicaoFinalEscrita, int posicaoAtualColuna){
+    BYTES * aux;
+
+    byte->prox = NULL;
     if(linha->inicio == NULL){
-        linha->inicio = novo;
-        linha->fim = novo;
+        linha->inicio = byte;
+        linha->fim = byte;
+        byte->ant = NULL;
+
     }else{
         if((posicaoAtualColuna) == (*posicaoFinalEscrita)){
-    
-            novo->ant = linha->fim;
-            linha->fim->prox = novo;
-            linha->fim = novo;
+            byte->ant = linha->fim;
+            linha->fim->prox = byte;
+            linha->fim = byte;
         }else if((*posicaoFinalEscrita) > (posicaoAtualColuna)){
              aux = linha->inicio;
             int i = 0;
@@ -58,14 +86,14 @@ void inserirCaractereLinha(LINHA *linha, char caractere, int * posicaoFinalEscri
                 aux = aux->prox;
                 i++;
             }
-            novo->prox = aux;
-            novo->ant = aux->ant;
+            byte->prox = aux;
+            byte->ant = aux->ant;
             if (aux->ant != NULL) {
-                aux->ant->prox = novo;
+                aux->ant->prox = byte;
+                aux->ant = byte;
             } else {
-                linha->inicio = novo;
+                linha->inicio = byte;
             }
-            aux->ant = novo;
 
             printf("\033[1@");
         }
@@ -78,8 +106,9 @@ void removerCaractereLinha(LINHA *linha){
     if(linha->fim == NULL){
         return;
     }
-    NO *aux = linha->fim;
+    BYTES *aux = linha->fim;
     linha->fim = linha->fim->ant;
+    linha->fim->prox = NULL;
     free(aux);
 }
 
@@ -113,14 +142,18 @@ void inserirTexto(char nomeArquivo[], char c){
 //Função para imprimir a lista de caracteres, para testes
 void imprimirLista(LINHA *linha){
     LINHA *aux = linha;    
-    NO *aux1;
-    int i = 0;
+    BYTES *auxBytes;
+    NO * auxNo;
     while(aux != NULL){
-        aux1 = aux->inicio;
-        i++;
-        while(aux1!=NULL){
-            printf("%c", aux1->c);
-            aux1 = aux1->prox;
+        auxBytes = aux->inicio;
+
+        while(auxBytes!=NULL){
+            auxNo = auxBytes->inicio;
+            while(auxNo != NULL){
+                printf("%c", auxNo->c);
+                auxNo = auxNo->prox;
+            }
+            auxBytes = auxBytes->prox;
         }
         printf("\n");
         aux = aux->baixo;
@@ -136,12 +169,17 @@ void salvarArquivo(char nomeArquivo[], PAGINA *pagina){
     }
 
     LINHA *linha = pagina->inicio;
-    NO *caractere;
+    BYTES * byte;
+    NO * caracteres;
     while(linha != NULL){
-        caractere = linha->inicio;
-        while(caractere != NULL){
-            fputc(caractere->c, arquivo);
-            caractere = caractere->prox;
+        byte = linha->inicio;
+        while(byte != NULL){
+            caracteres = byte->inicio;
+            while(caracteres != NULL){
+                fputc(caracteres->c, arquivo);
+                caracteres = caracteres->prox;
+            }
+            byte = byte->prox;
         }
         linha = linha->baixo;
         if(linha != NULL) fputc('\n', arquivo);
@@ -153,31 +191,32 @@ void salvarArquivo(char nomeArquivo[], PAGINA *pagina){
 void apagar(PAGINA * pagina, int x, int y){
     
     LINHA *linha = pagina->inicio;
-    NO *caractere;
+    BYTES *byte;
     int contador = 0;
+
     while(linha != NULL && contador < y){
         linha = linha->baixo;
         contador++;
     }
     contador = 0;
-    caractere = linha->inicio;
-    while(caractere != NULL && contador < x-1){
-        caractere = caractere->prox;
+    byte = linha->inicio;
+    while(byte != NULL && contador < x-1){
+        byte = byte->prox;
         contador++;
     }
-    if(caractere != NULL){
-        NO *aux = caractere;
-        if(caractere->ant != NULL){
-            caractere->ant->prox = caractere->prox;
+    if(byte != NULL){
+        BYTES *aux = byte;
+        if(byte->ant != NULL){
+            byte->ant->prox = byte->prox;
         }
-        if(caractere->prox != NULL){
-            caractere->prox->ant = caractere->ant;
+        if(byte->prox != NULL){
+            byte->prox->ant = byte->ant;
         }
-        if(caractere == linha->inicio){
-            linha->inicio = caractere->prox;
+        if(byte == linha->inicio){
+            linha->inicio = byte->prox;
         }
-        if(caractere == linha->fim){
-            linha->fim = caractere->ant;
+        if(byte == linha->fim){
+            linha->fim = byte->ant;
         }
         free(aux);
     }
@@ -185,7 +224,8 @@ void apagar(PAGINA * pagina, int x, int y){
 
 
 //Função para abrir um arquivo existente e armazenar na página. AlÃ©m disso, os ponteiros de linhas devem ser todos ligados e alocados, de modo qua a linha atual seja a última linha do arquivo, representado pelo ponteiro linha da Função. A Função deve imprimir o arquivo na tela
-void abrirArquivo(PAGINA * pagina, LINHA * linha, char nomeArquivo[], int *posicaoAtualLinha){
+void abrirArquivo( LINHA * linha, char nomeArquivo[], int *posicaoAtualLinha){
+    PAGINA * pagina = inicializar();
     pagina->inicio = linha;
     FILE *arquivo = fopen(nomeArquivo, "r");
     if(arquivo == NULL){
@@ -193,21 +233,61 @@ void abrirArquivo(PAGINA * pagina, LINHA * linha, char nomeArquivo[], int *posic
         return;
     }
     LINHA *aux = NULL;
-    char c;
+    BYTES * byte;
+
+    unsigned char c;
     while((c = fgetc(arquivo)) != EOF){
         if(c == '\n'){
+            imprimirLinha(linha);
             aux = inicializarLinha();
             novaLinha(aux, linha);
             linha->baixo = aux;
             aux->cima = linha;
             linha = aux;
             (*posicaoAtualLinha)++;
+            printf("\n");
         }else{
-            inserir(linha, c);
+            byte = inicializarBytes();
+            if(c <= 127){
+                inserirBytes(byte, c); 
+                // printf("%c", c); 
+            }else if(c >= 192 && c <= 223){
+                inserirBytes(byte, c);
+                // printf("%c", c);
+                c = fgetc(arquivo);
+                // printf("%c", c);
+                inserirBytes(byte, c);
+            }else if(c >= 224 && c <= 239){
+                inserirBytes(byte, c);
+                // printf("%c", c);
+                c = fgetc(arquivo);
+                // printf("%c", c);
+                inserirBytes(byte, c);
+                c = fgetc(arquivo);
+                inserirBytes(byte, c);
+                // printf("%c", c);
+            }else if(c >= 240 && c <= 247){
+                inserirBytes(byte, c);
+                // printf("%c", c);
+                c = fgetc(arquivo);
+                // printf("%c", c);
+                inserirBytes(byte, c);
+                c = fgetc(arquivo);
+                // printf("%c", c);
+                inserirBytes(byte, c);
+                c = fgetc(arquivo);
+                // printf("%c", c);
+                inserirBytes(byte, c);
+            }  
+            inserir(linha, byte);
         }
+        
     }
+    printf("\nAqui\n");
+    imprimirLinha(linha);
     fclose(arquivo);
-    imprimirLista(pagina->inicio);    
+
+    // imprimirLista(pagina->inicio);    
 }
 
 //Função para conseguir largura terminal com a biblioteca windows
@@ -239,7 +319,7 @@ void RecuperarPosicaoFinal(PAGINA * pagina, int posicaoAtualLinha, int *posicaoF
         linha = linha->baixo;
         i++;
     }
-    NO *aux = linha->inicio;
+    BYTES *aux = linha->inicio;
     while(aux != NULL){
         (*posicaoFinalEscrita)++;
         aux = aux->prox;
@@ -247,19 +327,18 @@ void RecuperarPosicaoFinal(PAGINA * pagina, int posicaoAtualLinha, int *posicaoF
 }
 
 //Função de inserção de linha na página
-void inserir(LINHA *linha, char c){
-    NO *novo = (NO*) malloc(sizeof(NO));
-    novo->c = c;
-    novo->prox = NULL;
-    novo->ant = NULL;
-    NO *aux;
+void inserir(LINHA *linha, BYTES * byte){
+   
+    byte->prox = NULL;
+
     if(linha->inicio == NULL){
-        linha->inicio = novo;
-        linha->fim = novo;
+        linha->inicio = byte;
+        linha->fim = byte;
+        byte->ant = NULL;
     }else{
-        novo->ant = linha->fim;
-        linha->fim->prox = novo;
-        linha->fim = novo;
+        byte->ant = linha->fim;
+        linha->fim->prox = byte;
+        linha->fim = byte;
     }
 }
 
@@ -281,9 +360,14 @@ LINHA *  Apontamento(PAGINA * pagina, int posicaoLinhaAtual){
 
 //Função para imprimir uma linha
 void imprimirLinha(LINHA *linha){
-    NO *aux = linha->inicio;
+    BYTES *aux = linha->inicio;
+    NO * aux1;
     while(aux != NULL){
-        printf("%c", aux->c);
+        aux1 = aux->inicio;
+        while(aux1 != NULL){
+            printf("%c", aux1->c);
+            aux1 = aux1->prox;
+        }
         aux = aux->prox;
     }
 }
@@ -297,8 +381,8 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
         i++;
     }
     LINHA * linhaAux = linha->baixo;
-    NO * aux = linha->inicio;
-    NO * liberar = NULL;
+    BYTES * aux = linha->inicio;
+    BYTES * liberar = NULL;
     i = 0;
     while(aux != NULL && i < posicaoAtualColuna){
         aux = aux->prox;
@@ -309,13 +393,12 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
     linha->fim = aux->ant;
     i = posicaoAtualColuna;
 
-
     
     if(linhaAux == NULL){
         linhaAux = inicializarLinha();
         novaLinha(linhaAux, linha);
         while(aux != NULL && i < (*posicaoFinalEscrita)){
-            inserir(linhaAux, aux->c);
+            inserir(linhaAux, aux);
             liberar = aux;
             aux = aux->prox;
             i++;
@@ -327,7 +410,7 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
         novaLinha(linha2, linha);
         novaLinha(linhaAux, linha2);
         while(aux != NULL && i < (*posicaoFinalEscrita)){
-            inserir(linha2, aux->c);
+            inserir(linha2, aux);
             liberar = aux;
             aux = aux->prox;
             i++;
@@ -365,14 +448,19 @@ void DeslocarLinha(LINHA * linha){
     auxLinha->baixo->cima = linha;
     
 
-    NO * aux = auxLinha->inicio;
+    BYTES * aux = auxLinha->inicio;
+    NO * aux1 = NULL;
     while(aux != NULL){
-        printf("%c", aux->c);
-        inserir(linha, aux->c);
+        aux1 = aux->inicio;
+        while(aux1 != NULL){
+            printf("%c", aux1->c);
+            aux1 = aux1->prox;
+        }
+        inserir(linha, aux);
         aux = aux->prox;
     }
     aux = auxLinha->inicio;
-    NO * liberar = NULL;
+    BYTES * liberar = NULL;
     while(aux != NULL){
         liberar = aux;
         aux = aux->prox;
@@ -381,3 +469,23 @@ void DeslocarLinha(LINHA * linha){
     free(auxLinha);
 
 }
+
+// int is_cursor_on_last_line() {
+//     int cursor_y, cursor_x;
+//     int max_y, max_x;
+    
+//     // Inicializa a tela
+//     initscr();
+    
+//     // Obtém a posição atual do cursor
+//     getyx(stdscr, cursor_y, cursor_x);
+    
+//     // Obtém o tamanho da janela
+//     getmaxyx(stdscr, max_y, max_x);
+    
+//     // Finaliza o modo ncurses
+//     endwin();
+    
+//     // Verifica se o cursor está na última linha
+//     return (cursor_y == max_y - 1);
+// }

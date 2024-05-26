@@ -3,41 +3,126 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <string.h>
-
+#include <windows.h>
 int main(){
-    char c;
-    int contador = 0;
-    while(1){
+    int c ;
+    FILE * file = fopen("teste3.txt", "r");
+    if(file == NULL){
+        printf("Erro ao abrir o arquivo\n");
+        return 1;
+    }
+    
+    while((c != 27)){
         c = getch();
-        if(c == 27){
-            break;
-        }
-        if(c == -32){
-            c = getch();
-            if(c == 72){
-                printf("\033[1A");
-            }else if(c == 80){
-                printf("\033[1B");
-            }else if(c == 77){
-                printf("\033[1C");
-            }else if(c == 75){
-                printf("\033[1D");
-            }
-        }else{
+        if(c <= 127){
+            
+            // printf("%c", c);
+            printf(", %d\n", c);
+            // fputc(c, file);
 
-        if(c == 8){
-            printf("\033[1M");
+        }else if(c >= 192 && c <= 223){
+            // printf("%c", c);
+            printf(", %d", c);
+            // fputc(c, file);
+
+            c = getch();
+            // printf("%c", c);
+            printf(", %d\n", c);
+            // fputc(c, file);
+
+        }else if(c >= 224 && c <= 239){
+            // printf("%c", c);
+            printf(", %d", c);
+            // fputc(c, file);
+
+            c = getch();
+            // fputc(c, file);
+            // printf("%c", c);
+            printf(", %d", c);
+
+            c = getch();
+            // fputc(c, file);
+            // printf("%c", c);
+            printf(", %d\n", c);
+
+        }else if(c >= 240 && c <= 247){
+            // printf("%c", c);
+            printf(", %d", c);
+            // fputc(c, file);
+
+            c = getch();
+            // printf("%c", c);
+            printf(", %d", c);
+            // fputc(c, file);
+
+            c = getch();
+            // fputc(c, file);
+            // printf("%c", c);
+            printf(", %d", c);
+
+            c = getch();
+            // fputc(c, file);
+            // printf("%c", c);
+            printf(", %d\n", c);
         }
-        else if(c == 13){
-            printf("\n");
-        }else{
-            printf("%c", c);
-        }
+        printf("\033[2S");
     }
 
-        
+    // while((c = fgetc(file)) != EOF){
+       
+    //     if(c <= 127){
+            
+    //         printf("%c", c);
+    //         // printf(", %d\n", c);
+    //         // fputc(c, file);
 
-}
-    return 0;
+    //     }else if(c >= 192 && c <= 223){
+    //         printf("%c", c);
+    //         // printf(", %d", c);
+    //         // fputc(c, file);
+
+    //         c = fgetc(file);
+    //         printf("%c", c);
+    //         // printf(", %d\n", c);
+    //         // fputc(c, file);
+
+    //     }else if(c >= 224 && c <= 239){
+    //         printf("%c", c);
+    //         // printf(", %d", c);
+    //         // fputc(c, file);
+
+    //         c = fgetc(file);
+    //         // fputc(c, file);
+    //         printf("%c", c);
+    //         // printf(", %d", c);
+
+    //         c = fgetc(file);
+    //         // fputc(c, file);
+    //         printf("%c", c);
+    //         // printf(", %d\n", c);
+
+    //     }else if(c >= 240 && c <= 247){
+    //         printf("%c", c);
+    //         // printf(", %d", c);
+    //         // fputc(c, file);
+
+    //         c = fgetc(file);
+    //         printf("%c", c);
+    //         // printf(", %d", c);
+    //         // fputc(c, file);
+
+    //         c = fgetc(file);
+    //         // fputc(c, file);
+    //         printf("%c", c);
+    //         // printf(", %d", c);
+
+    //         c = fgetc(file);
+    //         // fputc(c, file);
+    //         printf("%c", c);
+    //         // printf(", %d\n", c);
+
+    //     }
+    // }
+    fclose(file);
 }
  
