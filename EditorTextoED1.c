@@ -235,56 +235,42 @@ void abrirArquivo( LINHA * linha, char nomeArquivo[], int *posicaoAtualLinha){
     LINHA *aux = NULL;
     BYTES * byte;
 
-    unsigned char c;
+    int c;
     while((c = fgetc(arquivo)) != EOF){
         if(c == '\n'){
-            imprimirLinha(linha);
             aux = inicializarLinha();
             novaLinha(aux, linha);
-            linha->baixo = aux;
-            aux->cima = linha;
             linha = aux;
             (*posicaoAtualLinha)++;
             printf("\n");
         }else{
             byte = inicializarBytes();
             if(c <= 127){
-                inserirBytes(byte, c); 
-                // printf("%c", c); 
+                inserirBytes(byte, (unsigned char) c); 
             }else if(c >= 192 && c <= 223){
-                inserirBytes(byte, c);
-                // printf("%c", c);
+                inserirBytes(byte,(unsigned char) c);
                 c = fgetc(arquivo);
-                // printf("%c", c);
-                inserirBytes(byte, c);
+                inserirBytes(byte,(unsigned char) c);
             }else if(c >= 224 && c <= 239){
-                inserirBytes(byte, c);
-                // printf("%c", c);
+                inserirBytes(byte,(unsigned char) c);
                 c = fgetc(arquivo);
-                // printf("%c", c);
-                inserirBytes(byte, c);
+                inserirBytes(byte,(unsigned char) c);
                 c = fgetc(arquivo);
-                inserirBytes(byte, c);
-                // printf("%c", c);
+                inserirBytes(byte,(unsigned char) c);
             }else if(c >= 240 && c <= 247){
-                inserirBytes(byte, c);
-                // printf("%c", c);
+                inserirBytes(byte,(unsigned char) c);
                 c = fgetc(arquivo);
-                // printf("%c", c);
-                inserirBytes(byte, c);
+                inserirBytes(byte,(unsigned char) c);
                 c = fgetc(arquivo);
-                // printf("%c", c);
-                inserirBytes(byte, c);
+                inserirBytes(byte,(unsigned char) c);
                 c = fgetc(arquivo);
-                // printf("%c", c);
-                inserirBytes(byte, c);
+                inserirBytes(byte,(unsigned char) c);
             }  
             inserir(linha, byte);
         }
         
     }
-    printf("\nAqui\n");
-    imprimirLinha(linha);
+    imprimirLista(pagina->inicio);
     fclose(arquivo);
 
     // imprimirLista(pagina->inicio);    
