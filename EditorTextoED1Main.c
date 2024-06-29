@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-//#include <curses.h>
 #include "EditorTextoED1.h"
 #include <locale.h>
 #include <math.h>
@@ -39,12 +38,13 @@ int main(){
     BYTES * byte = inicializarBytes();  
     // linhaAtual->inicio = byte;
 
-    //Chama o menu de opções do editor para o usuário escolher o que deseja fazer, se deseja abrir um arquivo ou criar um novo.
+    //Chama o menu de opï¿½ï¿½es do editor para o usuï¿½rio escolher o que deseja fazer, se deseja abrir um arquivo ou criar um novo.
     int opcao = Menu();
     
     unsigned char caractere, auxiliar;
     int fim;
     char nomeArquivo[100];
+    unsigned char caractere;
 
     int i;
     int larguraTerminal = getLarguraTerminal();
@@ -53,7 +53,7 @@ int main(){
     int posicaoFinalEscrita = 0;
     int conferidor;
 
-    //Caso o usuário escolha a opção de abrir um arquivo, ele deve digitar o nome do arquivo que deseja abrir, caso contrário, ele deve digitar o nome do arquivo que deseja criar. Para cada opção, o nome do arquivo é armazenado na variável nomeArquivo.
+    //Caso o usuï¿½rio escolha a opï¿½ï¿½o de abrir um arquivo, ele deve digitar o nome do arquivo que deseja abrir, caso contrï¿½rio, ele deve digitar o nome do arquivo que deseja criar. Para cada opï¿½ï¿½o, o nome do arquivo ï¿½ armazenado na variï¿½vel nomeArquivo.
     switch(opcao){
         case NEW:
             getchar();
@@ -84,13 +84,13 @@ int main(){
 
     setbuf(stdin, NULL);
     
-    //Falta implementar a função de abrir um arquivo existente para edição
+    //Falta implementar a funï¿½ï¿½o de abrir um arquivo existente para ediï¿½ï¿½o
     while(1){
         caractere = getch();
 
         switch(caractere){
             case Tab:
-                //Tabulação
+                //Tabulaï¿½ï¿½o
                 for(i = 0; i < 4; i++){
                     inserirBytes(byte, ' ');
                     inserirCaractereLinha(linhaAtual, byte, &posicaoFinalEscrita, posicaoAtualColuna);
@@ -139,7 +139,7 @@ int main(){
                 break;
             case Backspace:
                 //Apagar caractere terminal
-                //Caso esteja no começo de uma linha, pular para o final da linha acima
+                //Caso esteja no comeï¿½o de uma linha, pular para o final da linha acima
                 if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
                         if(linhaAtual->inicio == NULL){
 
@@ -277,7 +277,7 @@ int main(){
 
             case ESC:
                 system("cls");
-                printf("\nFim da inserção de texto:\n1- Imprimir Lista e Salvar;\n2-Sair\nOpção: ");
+                printf("\nFim da inserï¿½ï¿½o de texto:\n1- Imprimir Lista e Salvar;\n2-Sair\nOpï¿½ï¿½o: ");
                 scanf("%d", &fim);
                 setbuf(stdin, NULL);
                 if(fim == 1){
@@ -296,7 +296,7 @@ int main(){
 
             //CTRL+S = 16 (Salvar e sair)
             case CTRL_S:
-                printf("Fim da inserção de texto:\n");
+                printf("Fim da inserï¿½ï¿½o de texto:\n");
                 setbuf(stdin, NULL);
                 printf("\n\n");
                 imprimirLista(pagina->inicio);
