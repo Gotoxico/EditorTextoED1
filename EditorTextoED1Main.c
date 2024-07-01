@@ -67,7 +67,7 @@ int main(){
 
             case OPEN:
                // system("cls");
-                printf("\n\nArquivos existentes no deretorio: \n");
+                printf("\n\nArquivos existentes no diretorio: \n");
                 listFiles(path);
                 getchar();
                 printf("digite o nome do arquivo: ");
