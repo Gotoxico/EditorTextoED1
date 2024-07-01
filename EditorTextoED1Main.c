@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-//#include <curses.h>
 #include "EditorTextoED1.h"
 #include <locale.h>
 #include <math.h>
@@ -32,6 +31,9 @@
 #define Deslocamento printf("\033[1L")
 #define DeleteLine printf("\033[1M")
 #define GOUpStart printf("\033[1F")
+#define ScrollUp printf("\033[1S")
+#define ScrollDown printf("\033[1T")
+#define InsertLine printf("\033[1L")
 
 void set_text_color(WORD color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -134,6 +136,12 @@ int main(){
                         byte = byte->prox;
                         printf(" ");
                         if(posicaoAtualColuna == larguraTerminal){
+                            if(verificarCursorFundo()){
+                                ScrollUp;
+                                /*if(linhaAtual->baixo != NULL){
+                                    imprimirLinha(linhaAtual->baixo);
+                                }*/
+                            }
                             GOStartDown;
                             posicaoAtualColuna = 0;
                             posicaoAtualLinha++;
@@ -145,6 +153,12 @@ int main(){
                     break;
                 case Enter:
                         //posicaoAtualLinha++;
+                        if(verificarCursorFundo()){
+                            ScrollUp;
+                            /*if(linhaAtual->baixo != NULL){
+                                imprimirLinha(linhaAtual->baixo);
+                            }*/
+                        }
                         if(posicaoAtualColuna < posicaoFinalEscrita){
                             if(posicaoAtualColuna == 0){
                                 aux = inicializarLinha();
@@ -195,6 +209,10 @@ int main(){
                 case Backspace:
                     //Apagar caractere terminal
                     //Caso esteja no começo de uma linha, pular para o final da linha acima
+                    if(verificarCursorTopo()){
+                        InsertLine;
+                        imprimirLinha(linhaAtual->cima);
+                    }
                     if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
                             if(linhaAtual->inicio == NULL){
                                 
@@ -263,6 +281,10 @@ int main(){
                         case CIMA:
                             // moverLinhaCima(linhaAtual);
                             if(posicaoAtualLinha!=0){
+                                if(verificarCursorTopo()){
+                                    InsertLine;
+                                    imprimirLinha(linhaAtual->cima);
+                                }
                                 posicaoAtualLinha--;
                                 conferidor = posicaoAtualColuna;
                                 RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
@@ -285,6 +307,10 @@ int main(){
                         case BAIXO:
                             // moverLinhaBaixo(linhaAtual);
                             if(linhaAtual->baixo!= NULL){
+                                if(verificarCursorFundo()){
+                                    ScrollUp;
+                                    imprimirLinha(linhaAtual->baixo);
+                                }
                                 linhaAtual = linhaAtual->baixo;
                                 posicaoAtualLinha++;
                                 conferidor = posicaoAtualColuna;
@@ -303,6 +329,10 @@ int main(){
                             // moverCaractereEsquerda(linhaAtual);
                             GOLeft;
                             if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
+                                if(verificarCursorTopo()){
+                                    InsertLine;
+                                    imprimirLinha(linhaAtual->cima);
+                                }
                                 posicaoAtualLinha--;
                                 RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                                 GOUpStart;
@@ -324,6 +354,12 @@ int main(){
                                 posicaoAtualColuna++;
                             }else if(posicaoAtualColuna == posicaoFinalEscrita){
                                 if(linhaAtual->baixo != NULL){
+                                    if(verificarCursorFundo()){
+                                        ScrollUp;
+                                        /*if(linhaAtual->baixo != NULL){
+                                            imprimirLinha(linhaAtual->baixo);
+                                        }*/
+                                    }
                                     linhaAtual = linhaAtual->baixo;
                                     posicaoAtualLinha++;
                                     posicaoAtualColuna = 0;
@@ -344,6 +380,12 @@ int main(){
                     printf("\033[1@");
                     GORight;
                     if(posicaoAtualColuna == larguraTerminal){
+                        if(verificarCursorFundo()){
+                            ScrollUp;
+                            /*if(linhaAtual->baixo != NULL){
+                                imprimirLinha(linhaAtual->baixo);
+                            }*/
+                        }
                         posicaoAtualColuna = 0;
                         posicaoAtualLinha++;
                         aux = inicializarLinha();
@@ -424,6 +466,12 @@ int main(){
                 }
                 inserirCaractereLinha(linhaAtual, byte, &posicaoFinalEscrita, posicaoAtualColuna);
                     if(posicaoAtualColuna == larguraTerminal-1){
+                        if(verificarCursorFundo()){
+                            ScrollUp;
+                            /*if(linhaAtual->baixo != NULL){
+                                imprimirLinha(linhaAtual->baixo);
+                            }*/
+                        }
                         posicaoAtualColuna = 0;
                         posicaoAtualLinha++;
                         aux = inicializarLinha();

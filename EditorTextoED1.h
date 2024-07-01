@@ -43,6 +43,9 @@ void salvarArquivo(char nomeArquivo[], PAGINA *pagina);
 void apagar(PAGINA *pagina, int x, int y);
 int abrirArquivo( LINHA *linha, char nomeArquivo[], int *posicaoAtualLinha);
 int getLarguraTerminal();
+int getAlturaTerminal();
+int verificarCursorFundo();
+int verificarCursorTopo();
 //int createDoc(const char * directory);
 //void listFiles(const char *path)  // Função para listar todos os arquivos em um diretório
 void RecuperarPosicaoFinal(PAGINA *pagina, int posicaoAtualLinha, int *posicaoFinalEscrita);
