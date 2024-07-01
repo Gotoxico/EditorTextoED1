@@ -209,8 +209,9 @@ int main(){
                 case Backspace:
                     //Apagar caractere terminal
                     //Caso esteja no começo de uma linha, pular para o final da linha acima
-                    if(verificarCursorTopo()){
-                        InsertLine;
+
+                    if(linhaAtual ->cima != NULL && verificarCursorTopo()){
+                        ScrollDown;
                         imprimirLinha(linhaAtual->cima);
                     }
                     if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
@@ -309,6 +310,7 @@ int main(){
                             if(linhaAtual->baixo!= NULL){
                                 if(verificarCursorFundo()){
                                     ScrollUp;
+                                    printf("\033[%dD", posicaoFinalEscrita);
                                     imprimirLinha(linhaAtual->baixo);
                                 }
                                 linhaAtual = linhaAtual->baixo;
@@ -489,6 +491,6 @@ int main(){
             if(salvamento == 1) break;
         }
     } while(opcao != 0);
-      
+    set_text_color(FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN);
     return 0;
 }
