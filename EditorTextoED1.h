@@ -28,6 +28,7 @@ typedef struct pagina{
 PAGINA * inicializar();
 LINHA * inicializarLinha();
 BYTES * inicializarBytes();
+void imprimirBytes(BYTES *bytes);
 BYTES * recuperarInicio(LINHA *linha);
 void inserirBytes(BYTES *bytes, unsigned char caractere);
 void novaLinha(LINHA *linha, LINHA *cima);
@@ -40,14 +41,16 @@ void inserirTexto(char nomeArquivo[], char c);
 void imprimirLista(LINHA * linha);
 void salvarArquivo(char nomeArquivo[], PAGINA *pagina);
 void apagar(PAGINA *pagina, int x, int y);
-void abrirArquivo( LINHA *linha, char nomeArquivo[], int *posicaoAtualLinha);
+int abrirArquivo( LINHA *linha, char nomeArquivo[], int *posicaoAtualLinha);
 int getLarguraTerminal();
+//int createDoc(const char * directory);
+//void listFiles(const char *path)  // Função para listar todos os arquivos em um diretório
 void RecuperarPosicaoFinal(PAGINA *pagina, int posicaoAtualLinha, int *posicaoFinalEscrita);
 void inserir(LINHA * linha, BYTES * byte);
 int Menu();
 LINHA * Apontamento(PAGINA *pagina,  int posicaoAtualLinha);
 LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita);
- void DeslocarLinha(LINHA * linha);
+ LINHA * DeslocarLinha(LINHA * linha);
 int is_cursor_on_last_line();
 
 #include "EditorTextoED1.c"
