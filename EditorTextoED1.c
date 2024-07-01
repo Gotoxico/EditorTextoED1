@@ -291,6 +291,32 @@ int getLarguraTerminal(){
     return csbi.dwSize.X;
 }
 
+int getAlturaTerminal(){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    return csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+}
+
+int verificarCursorFundo(){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    COORD cursorPosition = csbi.dwCursorPosition;
+    if(cursorPosition.Y == csbi.srWindow.Bottom){
+        return 1;
+    }
+    return 0;
+}
+
+int verificarCursorTopo(){
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    COORD cursorPosition = csbi.dwCursorPosition;
+    if(cursorPosition.Y == csbi.srWindow.Top){
+        return 1;
+    }
+    return 0;
+}
+
 // Menu de opções do editor
 int Menu(){
     int opcao;
