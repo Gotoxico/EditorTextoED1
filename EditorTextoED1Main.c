@@ -56,7 +56,7 @@ int main(){
         //Caso o usuário escolha a opção de abrir um arquivo, ele deve digitar o nome do arquivo que deseja abrir, caso contrário, ele deve digitar o nome do arquivo que deseja criar. Para cada opção, o nome do arquivo é armazenado na variável nomeArquivo.
         switch(opcao){
             case NEW:
-                //system("cls");
+                //system("t.txt");
                 getchar();
                 printf("digite o nome do arquivo (nome.txt): ");
                 gets(nomeArquivo);
@@ -121,8 +121,23 @@ int main(){
                 case Enter:
                         //posicaoAtualLinha++;
                         if(posicaoAtualColuna < posicaoFinalEscrita){
+                            if(posicaoAtualColuna == 0){
+                                aux = inicializarLinha();
+                                LINHA * sub = linhaAtual->cima;
+                                novaLinha(linhaAtual, aux);
+                                aux->cima = sub;
+                                if(sub != NULL){
+                                    sub->baixo = aux;
+                                }
+                                posicaoAtualLinha++;
+                                RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                                Deslocamento;
+                                GOStartDown;
+                                break;
+                            }
                             linhaAtual = Reapontar(pagina, posicaoAtualLinha, posicaoAtualColuna, &posicaoFinalEscrita);
                             posicaoAtualLinha++;
+                            
                             
                             RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                             posicaoAtualColuna = posicaoFinalEscrita;
@@ -173,9 +188,9 @@ int main(){
                                 DeleteLine;
                                 RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                                 GOUpStart;
-                                posicaoAtualColuna = posicaoFinalEscrita;
                                 printf("\033[%dC", posicaoFinalEscrita);
                                 linhaAtual = DeslocarLinha(linhaAtual);
+                                posicaoAtualColuna = posicaoFinalEscrita;
                                 RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                                 posicaoAtualColuna = posicaoFinalEscrita;
 
@@ -188,12 +203,7 @@ int main(){
                         GOLeft;
                         printf("\033[1P");
                     }
-                    //Apagar normal
-                    //printf("\b");
-                    //printf(" ");
-                    //GOLeft;
-                    //printf("\b");
-                    //printf("\033[1P");
+                 
                     apagar(pagina, posicaoAtualColuna, posicaoAtualLinha);
                     if(posicaoAtualColuna != 0) posicaoAtualColuna--;
                     posicaoFinalEscrita--;
@@ -324,7 +334,7 @@ int main(){
 
                 default:
                     // x++;
-                
+                printf("\033[1@");
                 if(caractere <= 127){
                     printf("%c", caractere);
                     inserirBytes(byte, caractere);

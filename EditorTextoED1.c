@@ -13,6 +13,8 @@
 #define GOLeft printf("\033[1D")
 #define Deslocamento printf("\033[1L")
 #define DeleteLine printf("\033[1M")
+#define GOStartDown printf("\033[1E")
+#define GOUpStart printf("\033[1F")
 
  PAGINA * inicializar(){
     PAGINA *pagina = (PAGINA*) malloc(sizeof(PAGINA));
@@ -96,7 +98,8 @@ void inserirCaractereLinha(LINHA *linha, BYTES * byte, int * posicaoFinalEscrita
             } else {
                 linha->inicio = byte;
             }
-            printf("\033[1@");
+             
+            
         }
     }
     (*posicaoFinalEscrita)++;
@@ -400,52 +403,58 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
     if(linhaAux == NULL){
         linhaAux = inicializarLinha();
         novaLinha(linhaAux, linha);
-        while(aux != NULL && i < (*posicaoFinalEscrita)){
-            inserir(linhaAux, aux);
-           // aux->ant->prox = NULL;
-           // aux->ant = NULL;
-            liberar = aux;
+        linhaAux->inicio = aux;
+        while(aux->prox != NULL){
+            //apagar caractere do terminal
             aux = aux->prox;
-            i++;
-            free(liberar);
+        }
+        linhaAux->fim = aux;
+        aux = linhaAux->inicio;
+        GOStartDown;
+        while(aux != NULL){
+            imprimirByte(aux);
+            aux = aux->prox;
         }
         
         conferidor = 0;
     }else{
         novaLinha(linha2, linha);
         novaLinha(linhaAux, linha2);
-        while(aux != NULL && i < (*posicaoFinalEscrita)){
-            inserir(linha2, aux);
-            aux->ant->prox = NULL;
-            aux->ant = NULL;
-            liberar = aux;
+        linha2->inicio = aux;
+        while(aux->prox != NULL){
             aux = aux->prox;
-            i++;
-            free(liberar);
+        }
+        linha2->fim = aux;
+        aux = linha2->inicio;
+        GOStartDown;
+        Deslocamento;
+        while(aux != NULL){
+            imprimirByte(aux);
+            aux = aux->prox;
         }
         conferidor = 1;
     }
+    
+    
+    GOUpStart;
+    printf("\033[%dC", (*posicaoFinalEscrita));
+    i = posicaoAtualColuna;
+    for(i; i < (*posicaoFinalEscrita); i++){
+        GOLeft;
+        printf("\033[1P");
+    }
+
+    GOStartDown;
     int contador = (*posicaoFinalEscrita) - posicaoAtualColuna;
     (*posicaoFinalEscrita) = posicaoAtualColuna;
     printf("\033[%dC", contador);
-    for(i = 0; i < contador; i++){
-        printf("\b");
-        printf(" ");
-        printf("\033[1D");
-    }
-    printf("\b");
-    printf("\033[1E");
-
-   
+     
+    
     if(conferidor == 0){
 
-        imprimirLinha(linhaAux);
-        return linhaAux;
+         return linhaAux;
     }else{
-        Deslocamento;
-        imprimirLinha(linha2);
-       
-    
+        
         return linha2;
     }
 }
@@ -454,16 +463,28 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
 LINHA * DeslocarLinha(LINHA * linha){
    LINHA * Cima = linha->cima;
     BYTES * aux = linha->inicio, *sub;
-    while( aux->prox != NULL){
-        inserir(Cima, aux);
-       imprimirByte(aux);
-        sub = aux;
-        aux = aux->prox;
-        //free(sub);
-    }
-    free(aux);
-    return Cima;
+    Cima->fim->prox = aux;
+    aux->ant = Cima->fim;
+    Cima->fim = linha->fim;
+    if(linha->baixo == NULL){
+        while( aux != NULL){
+        imprimirByte(aux);
+            aux = aux->prox;
+        }
+        Cima->baixo = NULL;
+        free(linha);
+        return Cima;    
+    }else{
+        while( aux != NULL){
+        imprimirByte(aux);
+            aux = aux->prox;
+        }
+        Cima->baixo = linha->baixo;
+        linha->baixo->cima = Cima;
+        free(linha);
+        return Cima;
     
+    }
 }
 
 
@@ -476,7 +497,8 @@ void listFiles(const char *path) {  // Função para listar todos os arquivos em u
         perror("opendir");  // Se o diretório der erro na hora de abrir
         return;
     }
-
+     
+    
 
     while ((entry = readdir(dp))) {
         // Verifica se o nome da entrada não começa com um ponto para ignorar "." e ".."
@@ -485,6 +507,8 @@ void listFiles(const char *path) {  // Função para listar todos os arquivos em u
             i++;
         }
     }
+
+    
 
     closedir(dp);  // Fecha o diretório após a leitura
 }
