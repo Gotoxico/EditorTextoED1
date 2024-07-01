@@ -4,6 +4,8 @@
 #include <string.h>
 #include "EditorTextoED1.h"
 #include <windows.h>
+#include <dirent.h>  // Biblioteca para manipulação de diretórios, como opendir e readdir
+#include <sys/stat.h> // Biblioteca para obter informações sobre arquivos e diretórios, como stat
 
 #define GORight printf("\033[1C")
 #define GOUp printf("\033[1A")
@@ -41,10 +43,10 @@ BYTES * inicializarBytes(){
     return byte;
 }
 void novaLinha(LINHA *linha , LINHA *cima){
-    linha->inicio = NULL;
-    linha->fim = NULL;
+    //linha->inicio = NULL;
+    //linha->fim = NULL;
     linha->cima = cima;
-    linha->baixo = NULL;
+    //linha->baixo = NULL;
     cima->baixo = linha;
 }
 //Função para inserir byte
@@ -94,7 +96,6 @@ void inserirCaractereLinha(LINHA *linha, BYTES * byte, int * posicaoFinalEscrita
             } else {
                 linha->inicio = byte;
             }
-
             printf("\033[1@");
         }
     }
@@ -162,7 +163,9 @@ void imprimirLista(LINHA *linha){
 
 //Função para salvar o arquivo
 void salvarArquivo(char nomeArquivo[], PAGINA *pagina){
-    FILE *arquivo = fopen(nomeArquivo, "w");
+    char caminho[100] = "../arquivos/";
+    strcat(caminho, nomeArquivo);
+    FILE *arquivo = fopen(caminho, "w");
     if(arquivo == NULL){
         printf("Erro ao abrir o arquivo");
         return;
@@ -224,13 +227,15 @@ void apagar(PAGINA * pagina, int x, int y){
 
 
 //Função para abrir um arquivo existente e armazenar na página. AlÃ©m disso, os ponteiros de linhas devem ser todos ligados e alocados, de modo qua a linha atual seja a última linha do arquivo, representado pelo ponteiro linha da Função. A Função deve imprimir o arquivo na tela
-void abrirArquivo( LINHA * linha, char nomeArquivo[], int *posicaoAtualLinha){
+int abrirArquivo( LINHA * linha, char nomeArquivo[], int *posicaoAtualLinha){
     PAGINA * pagina = inicializar();
     pagina->inicio = linha;
-    FILE *arquivo = fopen(nomeArquivo, "r");
+     char caminho[100] = "../arquivos/";
+    strcat(caminho, nomeArquivo);
+    FILE *arquivo = fopen(caminho, "r");
     if(arquivo == NULL){
         printf("Erro ao abrir o arquivo");
-        return;
+        return 0;
     }
     LINHA *aux = NULL;
     BYTES * byte;
@@ -272,7 +277,7 @@ void abrirArquivo( LINHA * linha, char nomeArquivo[], int *posicaoAtualLinha){
     }
     imprimirLista(pagina->inicio);
     fclose(arquivo);
-
+    return 1;
     // imprimirLista(pagina->inicio);    
 }
 
@@ -289,8 +294,8 @@ int Menu(){
     printf("\tBem vindo ao Editor de Texto\n");
     printf("1- Novo arquivo\n");
     printf("2- Abrir e Editar arquivo existente\n");
-    printf("3- Sair\n");
-    printf("Digite a opção desejada: ");
+    printf("0- Fechar Editor\n");
+    printf("Digite a opcao desejada: ");
 
     scanf("%d", &opcao);
 
@@ -314,6 +319,7 @@ void RecuperarPosicaoFinal(PAGINA * pagina, int posicaoAtualLinha, int *posicaoF
 
 //Função de inserção de linha na página
 void inserir(LINHA *linha, BYTES * byte){
+   
    
     byte->prox = NULL;
 
@@ -344,6 +350,15 @@ LINHA *  Apontamento(PAGINA * pagina, int posicaoLinhaAtual){
     return aux;
 }
 
+//imprimir Byte
+void imprimirByte(BYTES *byte){
+    NO *aux = byte->inicio;
+    while(aux != NULL){
+        printf("%c", aux->c);
+        aux = aux->prox;
+    }
+}
+
 //Função para imprimir uma linha
 void imprimirLinha(LINHA *linha){
     BYTES *aux = linha->inicio;
@@ -357,6 +372,7 @@ void imprimirLinha(LINHA *linha){
         aux = aux->prox;
     }
 }
+
 
 //Função para mover a linha para baixo
 LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna, int *posicaoFinalEscrita){
@@ -377,6 +393,7 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
     LINHA * linha2 = inicializarLinha();
     aux->ant->prox = NULL;
     linha->fim = aux->ant;
+    
     i = posicaoAtualColuna;
 
     
@@ -385,6 +402,8 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
         novaLinha(linhaAux, linha);
         while(aux != NULL && i < (*posicaoFinalEscrita)){
             inserir(linhaAux, aux);
+           // aux->ant->prox = NULL;
+           // aux->ant = NULL;
             liberar = aux;
             aux = aux->prox;
             i++;
@@ -397,6 +416,8 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
         novaLinha(linhaAux, linha2);
         while(aux != NULL && i < (*posicaoFinalEscrita)){
             inserir(linha2, aux);
+            aux->ant->prox = NULL;
+            aux->ant = NULL;
             liberar = aux;
             aux = aux->prox;
             i++;
@@ -423,55 +444,77 @@ LINHA * Reapontar(PAGINA * pagina, int posicaoAtualLinha, int posicaoAtualColuna
     }else{
         Deslocamento;
         imprimirLinha(linha2);
+       
+    
         return linha2;
     }
 }
 
-void DeslocarLinha(LINHA * linha){
-    LINHA * auxLinha = linha->baixo;
-
-    linha->baixo = auxLinha->baixo;
-    auxLinha->baixo->cima = linha;
+//Backspace no início da linha para que o conteúdo da linha de baixo seja movido para cima
+LINHA * DeslocarLinha(LINHA * linha){
+   LINHA * Cima = linha->cima;
+    BYTES * aux = linha->inicio, *sub;
+    while( aux->prox != NULL){
+        inserir(Cima, aux);
+       imprimirByte(aux);
+        sub = aux;
+        aux = aux->prox;
+        //free(sub);
+    }
+    free(aux);
+    return Cima;
     
+}
 
-    BYTES * aux = auxLinha->inicio;
-    NO * aux1 = NULL;
-    while(aux != NULL){
-        aux1 = aux->inicio;
-        while(aux1 != NULL){
-            printf("%c", aux1->c);
-            aux1 = aux1->prox;
+
+
+void listFiles(const char *path) {  // Função para listar todos os arquivos em um diretório
+    struct dirent *entry;
+    DIR *dp = opendir(path); // Abre o diretório especificado pelo caminho e retorna um ponteiro para o diretório
+    int i = 1;
+    if (dp == NULL) {
+        perror("opendir");  // Se o diretório der erro na hora de abrir
+        return;
+    }
+
+
+    while ((entry = readdir(dp))) {
+        // Verifica se o nome da entrada não começa com um ponto para ignorar "." e ".."
+        if (entry->d_name[0] != '.') {
+            printf(" %d - %s\n", i, entry->d_name);  // Imprime o nome do arquivo ou diretório
+            i++;
         }
-        inserir(linha, aux);
-        aux = aux->prox;
     }
-    aux = auxLinha->inicio;
-    BYTES * liberar = NULL;
-    while(aux != NULL){
-        liberar = aux;
-        aux = aux->prox;
-        free(liberar);
+
+    closedir(dp);  // Fecha o diretório após a leitura
+}
+
+
+int createDoc(const char *directory){
+    char newDocName[30];
+    char fullPath[130];
+
+    printf("Nome do documento (inclua .txt): ");
+    fgets(newDocName, sizeof(newDocName), stdin);
+    newDocName[strcspn(newDocName, "\n")] = '\0'; // Remove o caractere de nova linha
+
+    snprintf(fullPath, sizeof(fullPath), "%s/%s", directory, newDocName);
+
+
+    FILE *f = fopen(fullPath, "a+"); // inicializa o arquivo
+    if (f == NULL) {
+        printf("Erro ao abrir arquivo %s\n", newDocName);
+        return FALSE;
+    } else {
+        printf("Arquivo %s criado com sucesso\n", newDocName);
     }
-    free(auxLinha);
+
+    //FUNÇÂO PRA EXECUTAR O BGLH DOIDO
+
+    fclose(f); // fecha o arquivo
+
+    return TRUE;
 
 }
 
-// int is_cursor_on_last_line() {
-//     int cursor_y, cursor_x;
-//     int max_y, max_x;
-    
-//     // Inicializa a tela
-//     initscr();
-    
-//     // Obtém a posição atual do cursor
-//     getyx(stdscr, cursor_y, cursor_x);
-    
-//     // Obtém o tamanho da janela
-//     getmaxyx(stdscr, max_y, max_x);
-    
-//     // Finaliza o modo ncurses
-//     endwin();
-    
-//     // Verifica se o cursor está na última linha
-//     return (cursor_y == max_y - 1);
-// }
+
