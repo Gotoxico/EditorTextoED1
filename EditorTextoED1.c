@@ -280,8 +280,7 @@ int abrirArquivo( LINHA * linha, char nomeArquivo[], int *posicaoAtualLinha){
     }
     imprimirLista(pagina->inicio);
     fclose(arquivo);
-    return 1;
-    // imprimirLista(pagina->inicio);    
+    return 1;  
 }
 
 //Função para conseguir largura terminal com a biblioteca windows
@@ -294,7 +293,7 @@ int getLarguraTerminal(){
 // Menu de opções do editor
 int Menu(){
     int opcao;
-    printf("\tBem vindo ao Editor de Texto\n");
+    printf("\n MENU DE OPCOES\n");
     printf("1- Novo arquivo\n");
     printf("2- Abrir e Editar arquivo existente\n");
     printf("0- Fechar Editor\n");

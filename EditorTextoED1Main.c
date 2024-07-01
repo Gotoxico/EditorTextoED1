@@ -8,6 +8,7 @@
 #include <dirent.h>  // Biblioteca para manipulação de diretórios, como opendir e readdir
 #include <sys/stat.h> // Biblioteca para obter informações sobre arquivos e diretórios, como stat
 #include <string.h>
+#include <windows.h>
 
 
 #define Backspace 8
@@ -32,6 +33,26 @@
 #define DeleteLine printf("\033[1M")
 #define GOUpStart printf("\033[1F")
 
+void set_text_color(WORD color) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, color);
+}
+
+void print_centered(const char *text) {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    int width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+    int text_len = strlen(text);
+    int position = (width - text_len) / 2;
+
+    COORD coord;
+    coord.X = position;
+    coord.Y = csbi.dwCursorPosition.Y;
+    SetConsoleCursorPosition(hConsole, coord);
+    printf("%s\n", text);
+}
+
 
 int main(){
     //setlocale(LC_ALL, "Portuguese");
@@ -47,18 +68,21 @@ int main(){
     //Chama o menu de opções do editor para o usuário escolher o que deseja fazer, se deseja abrir um arquivo ou criar um novo.
     unsigned char caractere, auxiliar;
     int fim;
-    char nomeArquivo[100];
+    char nomeArquivo[100], text[30] = "BEM VINDO AO EDITOR DE TEXTO!";
 
     int i, larguraTerminal = getLarguraTerminal, posicaoAtualColuna = 0, posicaoAtualLinha = 0,posicaoFinalEscrita = 0, conferidor, salvamento, abertura;
     do{
-        
+        set_text_color(FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+        print_centered(text);
+        set_text_color(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
         opcao = Menu();
         //Caso o usuário escolha a opção de abrir um arquivo, ele deve digitar o nome do arquivo que deseja abrir, caso contrário, ele deve digitar o nome do arquivo que deseja criar. Para cada opção, o nome do arquivo é armazenado na variável nomeArquivo.
+        set_text_color(FOREGROUND_RED );
         switch(opcao){
             case NEW:
                 //system("t.txt");
                 getchar();
-                printf("digite o nome do arquivo (nome.txt): ");
+                printf("\nDigite o nome do arquivo: ");
                 gets(nomeArquivo);
                 strcat(nomeArquivo, ".txt");
                 //fopen("teste.txt", "w");
@@ -73,6 +97,7 @@ int main(){
                 printf("digite o nome do arquivo: ");
                 gets(nomeArquivo);
                 //strcat(nomeArquivo, ".txt");
+                 set_text_color(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
                 abertura = abrirArquivo(linhaAtual, nomeArquivo, &posicaoAtualLinha);
                 if(abertura == 0){
                     printf("\n\nArquivo nao encontrado!\n\n\n");
@@ -92,7 +117,7 @@ int main(){
                 return 0;
                 break;
         }
-
+        set_text_color(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         setbuf(stdin, NULL);
         
         //Falta implementar a função de abrir um arquivo existente para edição
@@ -172,16 +197,38 @@ int main(){
                     //Caso esteja no começo de uma linha, pular para o final da linha acima
                     if(posicaoAtualColuna == 0 && posicaoAtualLinha != 0){
                             if(linhaAtual->inicio == NULL){
+                                
+                                if(linhaAtual->baixo == NULL){
+                                    aux = linhaAtual;
+                                    linhaAtual = linhaAtual->cima;
+                                    posicaoAtualLinha--;
+                                    RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                                    GOUpStart;
+                                    if(linhaAtual->inicio != NULL)
+                                        printf("\033[%dC", posicaoFinalEscrita);
+                                    posicaoAtualColuna = posicaoFinalEscrita;
+                                    aux->cima = NULL;
+                                    aux->baixo = NULL;
+                                    linhaAtual->baixo = NULL;
+                                    free(aux);
+                                }else{
+                                    aux = linhaAtual;
+                                    linhaAtual = linhaAtual->cima;
+                                    linhaAtual->baixo = aux->baixo;
+                                    aux->baixo->cima = linhaAtual;
+                                    DeleteLine;
+                                    posicaoAtualLinha--;
+                                    RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                                    GOUpStart;
+                                    if(linhaAtual->inicio != NULL)
+                                        printf("\033[%dC", posicaoFinalEscrita);
+                                    posicaoAtualColuna = posicaoFinalEscrita;
+                                     
+                                    aux->cima = NULL;
+                                    aux->baixo = NULL;
+                                    free(aux);
+                                }
 
-                                posicaoAtualLinha--;
-                                RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
-                                GOUpStart;
-                                printf("\033[%dC", posicaoFinalEscrita);
-                                posicaoAtualColuna = posicaoFinalEscrita;
-                                aux = linhaAtual;
-                                linhaAtual = linhaAtual->cima;
-                                linhaAtual->baixo = NULL;
-                                free(aux);
                             }else{
                                 //linhaAtual = linhaAtual->cima;
                                 posicaoAtualLinha--;
@@ -219,15 +266,17 @@ int main(){
                                 posicaoAtualLinha--;
                                 conferidor = posicaoAtualColuna;
                                 RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
+                                linhaAtual = linhaAtual->cima;
                                 if(conferidor > posicaoFinalEscrita){
                                     GOUpStart;
-                                    printf("\033[%dC", posicaoFinalEscrita);
+                                    if(linhaAtual->inicio != NULL)
+                                     printf("\033[%dC", posicaoFinalEscrita);
                                     posicaoAtualColuna = posicaoFinalEscrita;
                                 }else{
-                                    GOUpStart;
-                                    printf("\033[%dC", posicaoAtualColuna);
+                                    GOUp;
+                                    // if(linhaAtual->inicio != NULL)
+                                        // printf("\033[%dC", posicaoAtualColuna);
                                 }
-                                linhaAtual = linhaAtual->cima;
                             
                             } 
                             
@@ -257,10 +306,11 @@ int main(){
                                 posicaoAtualLinha--;
                                 RecuperarPosicaoFinal(pagina, posicaoAtualLinha, &posicaoFinalEscrita);
                                 GOUpStart;
-                                printf("\033[%dC", posicaoFinalEscrita);
+                                linhaAtual = linhaAtual->cima;
+                                if(linhaAtual->inicio != NULL)
+                                    printf("\033[%dC",  posicaoFinalEscrita);
                                 
                                 posicaoAtualColuna = posicaoFinalEscrita;
-                                linhaAtual = linhaAtual->cima;
                             }
                             else{
 
@@ -291,7 +341,8 @@ int main(){
                     inserirBytes(byte, ' ');
                     inserirCaractereLinha(linhaAtual, byte, &posicaoFinalEscrita, posicaoAtualColuna);
                     byte = inicializarBytes();
-                    printf(" ");
+                    printf("\033[1@");
+                    GORight;
                     if(posicaoAtualColuna == larguraTerminal){
                         posicaoAtualColuna = 0;
                         posicaoAtualLinha++;
@@ -307,13 +358,16 @@ int main(){
 
                 case ESC:
                     system("cls");
+                    set_text_color(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
                     printf("\n\nFim da insercao de texto:\n1- Imprimir Lista e Salvar;\n2- Nao-Salvar\nOpcao: ");
                     scanf("%d", &fim);
                     setbuf(stdin, NULL);
                     if(fim == 1){
                         printf("\n\n");
+                        set_text_color(FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
                         imprimirLista(pagina->inicio);
                         salvarArquivo(nomeArquivo, pagina);
+                        set_text_color(FOREGROUND_RED);
                         printf("\n\nArquivo salvo com sucesso!\n\n");
                     }else{
                         printf("\n\n");
@@ -334,6 +388,7 @@ int main(){
 
                 default:
                     // x++;
+                if(linhaAtual == NULL) GOLeft;
                 printf("\033[1@");
                 if(caractere <= 127){
                     printf("%c", caractere);
