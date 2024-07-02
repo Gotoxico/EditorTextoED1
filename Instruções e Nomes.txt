@@ -1,0 +1,2 @@
+Kauan Loche dos Santos e Rodrigo Isao Goto
+Des-zipar e ou compilar e rodar o arquivo editorTextoED1Main ou rodar o executável editorTextoED1Main na pasta output
